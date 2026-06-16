@@ -153,7 +153,7 @@
                     Kelola data produksi jaring.
                 </p>
 
-                <a href="{{ route('produksi.index') }}"
+                <a href="{{ route('') }}"
                    class="btn btn-primary">
 
                     Buka Data Produksi
@@ -182,7 +182,7 @@
                     Kelola setting mesin produksi.
                 </p>
 
-                <a href="{{ route('pengaturan.index') }}"
+                <a href="{{ route('') }}"
                    class="btn btn-warning">
 
                     Buka Pengaturan
@@ -211,7 +211,7 @@
                     Kelola data kerusakan mesin.
                 </p>
 
-                <a href="{{ route('kerusakan.index') }}"
+                <a href="{{ route('') }}"
                    class="btn btn-danger">
 
                     Buka Data Kerusakan
