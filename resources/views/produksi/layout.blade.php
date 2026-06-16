@@ -4,11 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
 
-    <title>@yield('SIMKAJAR','Admin Produksi')</title>
+    <title>@yield('title', 'SIMKAJAR - Admin Produksi')</title>
 
-    <link rel="stylesheet" href="{{ asset('assets/css/bootstrap.min.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/vendors/bootstrap-icons/bootstrap-icons.css') }}">
-    <link rel="stylesheet" href="{{ asset('assets/css/style.css') }}">
+   <link rel="stylesheet" href="{{ asset('css/bootstrap.min.css') }}">
+   <link rel="stylesheet" href="{{ asset('vendors/bootstrap-icons/bootstrap-icons.css') }}">
+   <link rel="stylesheet" href="{{ asset('css/style.css') }}">
 </head>
 
 <body>
@@ -17,12 +17,12 @@
 
     <div class="sidebar-backdrop" data-sidebar-close></div>
 
-    <!-- SIDEBAR -->
+    <!-- Sidebar -->
     <aside class="admin-sidebar" id="adminSidebar">
 
         <div class="sidebar-header">
 
-            <a class="brand-mark" href="{{ route('beranda.produksi') }}">
+            <a class="brand-mark" href="{{ url('/') }}">
 
                 <span class="brand-icon">
                     <i class="bi bi-gear-wide-connected"></i>
@@ -31,7 +31,7 @@
                 <span class="brand-copy">
 
                     <span class="brand-title">
-                        PRODUKSI
+                        SIMKAJAR
                     </span>
 
                     <span class="brand-subtitle">
@@ -47,93 +47,63 @@
         <nav class="sidebar-nav">
 
             <!-- Dashboard -->
-
-            <a class="nav-link {{ request()->routeIs('beranda.produksi') ? 'active' : '' }}"
-                href="{{ route('beranda.produksi') }}">
-
+            <a class="nav-link" href="{{ url('/') }}">
                 <span class="nav-icon">
                     <i class="bi bi-speedometer2"></i>
                 </span>
-
                 <span class="nav-text">
                     Dashboard
                 </span>
-
             </a>
 
-            <!-- Produksi -->
-
-            <a class="nav-link"
-                href="{{ route('produksi.index') }}">
-
+            <!-- Data Produksi -->
+            <a class="nav-link" href="#">
                 <span class="nav-icon">
                     <i class="bi bi-box-seam"></i>
                 </span>
-
                 <span class="nav-text">
                     Data Produksi
                 </span>
-
             </a>
 
             <!-- Pengaturan Mesin -->
-
-            <a class="nav-link"
-                href="{{ route('pengaturan.index') }}">
-
+            <a class="nav-link" href="#">
                 <span class="nav-icon">
                     <i class="bi bi-sliders"></i>
                 </span>
-
                 <span class="nav-text">
                     Pengaturan Mesin
                 </span>
-
             </a>
 
-            <!-- Kerusakan -->
-
-            <a class="nav-link"
-                href="{{ route('kerusakan.index') }}">
-
+            <!-- Data Kerusakan -->
+            <a class="nav-link" href="#">
                 <span class="nav-icon">
                     <i class="bi bi-exclamation-octagon"></i>
                 </span>
-
                 <span class="nav-text">
                     Data Kerusakan
                 </span>
-
             </a>
 
-            <!-- Grafik -->
-
-            <a class="nav-link"
-                href="{{ route('grafik.produksi') }}">
-
+            <!-- Grafik Produksi -->
+            <a class="nav-link" href="#">
                 <span class="nav-icon">
                     <i class="bi bi-bar-chart-line"></i>
                 </span>
-
                 <span class="nav-text">
                     Grafik Produksi
                 </span>
-
             </a>
 
             <!-- Hasil Produksi -->
-
-            <a class="nav-link"
-                href="{{ route('hasil.produksi') }}">
-
+            <a class="nav-link" href="#">
                 <span class="nav-icon">
                     <i class="bi bi-clipboard-data"></i>
                 </span>
-
                 <span class="nav-text">
                     Hasil Produksi
                 </span>
-
             </a>
 
         </nav>
@@ -150,12 +120,10 @@
 
     </aside>
 
-    <!-- MAIN -->
-
+    <!-- Main -->
     <div class="admin-main">
 
-        <!-- NAVBAR -->
-
+        <!-- Navbar -->
         <nav class="navbar admin-navbar navbar-expand bg-white">
 
             <div class="container-fluid px-3 px-lg-4">
@@ -171,7 +139,7 @@
                 </button>
 
                 <h5 class="ms-3 mb-0">
-                    @yield('header')
+                    @yield('header', 'Dashboard Produksi')
                 </h5>
 
                 <div class="navbar-actions ms-auto">
@@ -183,7 +151,11 @@
 
                             <span class="profile-name">
 
-                                {{ Auth::user()->name ?? 'Admin Produksi' }}
+                                @auth
+                                    {{ Auth::user()->name }}
+                                @else
+                                    Admin Produksi
+                                @endauth
 
                             </span>
 
@@ -192,14 +164,9 @@
                         <ul class="dropdown-menu dropdown-menu-end">
 
                             <li>
-
-                                <a class="dropdown-item"
-                                    href="#">
-
+                                <a class="dropdown-item" href="#">
                                     Profil
-
                                 </a>
-
                             </li>
 
                             <li>
@@ -208,18 +175,19 @@
 
                             <li>
 
-                                <form method="POST"
-                                      action="{{ route('logout') }}">
-
+                                @auth
+                                <form method="POST" action="{{ route('logout') }}">
                                     @csrf
 
-                                    <button class="dropdown-item">
-
+                                    <button type="submit" class="dropdown-item">
                                         Logout
-
                                     </button>
-
                                 </form>
+                                @else
+                                <a href="#" class="dropdown-item">
+                                    Logout
+                                </a>
+                                @endauth
 
                             </li>
 
@@ -233,8 +201,7 @@
 
         </nav>
 
-        <!-- CONTENT -->
-
+        <!-- Content -->
         <main class="dashboard-content">
 
             <div class="container-fluid px-3 px-lg-4 py-4">
@@ -245,23 +212,17 @@
 
         </main>
 
-        <!-- FOOTER -->
-
+        <!-- Footer -->
         <footer class="admin-footer">
 
             <div class="container-fluid px-3 px-lg-4">
 
                 <span>
-
-                    © {{ date('Y') }}
-                    Sistem Manajemen Produksi Jaring Industri
-
+                    © {{ date('Y') }} Sistem Manajemen Produksi Jaring Industri
                 </span>
 
                 <span>
-
                     PT Arteria Daya Mulia Cirebon
-
                 </span>
 
             </div>
@@ -272,8 +233,8 @@
 
 </div>
 
-<script src="{{ asset('assets/js/bootstrap.bundle.min.js') }}"></script>
-<script src="{{ asset('assets/js/main.js') }}"></script>
+<script src="{{ asset('js/bootstrap.bundle.min.js') }}"></script>
+<script src="{{ asset('js/main.js') }}"></script>
 
 @stack('scripts')
 
