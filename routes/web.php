@@ -1,6 +1,7 @@
 <?php
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\ProduksiController;
 
 /*
 |--------------------------------------------------------------------------
@@ -16,3 +17,12 @@ use Illuminate\Support\Facades\Route;
 Route::get('/', function () {
     return view('produksi.beranda');
 });
+
+Route::get('/produksi/dashboard', function () {
+    return view('produksi.beranda');
+})->name('produksi.dashboard');
+
+Route::get('/produksi/data-produksi', [ProduksiController::class, 'index'])
+    ->name('produksi.data');
+
+
