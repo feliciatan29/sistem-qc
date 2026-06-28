@@ -6,16 +6,6 @@
 
 @section('content')
 
-<div class="page-heading mb-4">
-
-    <h2>Dashboard Produksi</h2>
-
-    <p class="text-muted">
-        Sistem Manajemen Produksi Jaring Industri
-    </p>
-
-</div>
-
 <div class="row g-3">
 
     <div class="col-md-3">

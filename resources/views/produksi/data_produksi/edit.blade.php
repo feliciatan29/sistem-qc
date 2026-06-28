@@ -1,0 +1,174 @@
+@extends('produksi.layout')
+
+@section('content')
+    <div class="container-fluid px-3 px-lg-4 py-4">
+
+        {{-- Heading --}}
+        <div class="page-heading">
+            <div class="page-heading-copy">
+                <span class="page-icon">
+                    <i class="bi bi-pencil-square"></i>
+                </span>
+
+                <div>
+                    <p class="eyebrow mb-1">
+                        Produksi
+                    </p>
+
+                    <h1 class="h3 mb-1">
+                        Edit Data Produksi
+                    </h1>
+
+                    <p class="text-muted mb-0">
+                        Ubah data pesanan produksi jaring.
+                    </p>
+                </div>
+            </div>
+        </div>
+
+        {{-- Panel Form --}}
+        <section class="panel">
+
+            <div class="panel-header">
+                <div>
+                    <h2 class="h5 mb-1 section-title">
+                        <i class="bi bi-ui-checks-grid"></i>
+                        <span>Form Edit Data Produksi</span>
+                    </h2>
+
+                    <p class="text-muted mb-0">
+                        Perbarui data produksi dengan mengubah informasi yang diperlukan.
+                    </p>
+                </div>
+            </div>
+
+            <form action="{{ route('produksi.update', $produksi->id) }}" method="POST" class="needs-validation" novalidate>
+                @csrf
+                @method('PUT')
+
+                <div class="row g-3">
+
+                    {{-- Jenis Jaring --}}
+                    <div class="col-md-6">
+                        <label class="form-label" for="jenis_jaring">
+                            Jenis Jaring
+                        </label>
+
+                        <input class="form-control @error('jenis_jaring') is-invalid @enderror" id="jenis_jaring"
+                            name="jenis_jaring" type="text" placeholder="Masukkan jenis jaring"
+                            value="{{ old('jenis_jaring', $produksi->jenis_jaring) }}" required>
+
+                        @error('jenis_jaring')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
+                    {{-- Bulan Produksi --}}
+                    <div class="col-md-6">
+                        <label class="form-label" for="bulan_produksi">
+                            Bulan Produksi
+                        </label>
+
+                        <input class="form-control @error('bulan_produksi') is-invalid @enderror" id="bulan_produksi"
+                            name="bulan_produksi" type="month"
+                            value="{{ old('bulan_produksi', $produksi->bulan_produksi) }}" required>
+
+                        @error('bulan_produksi')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
+                    {{-- Jumlah Pesanan --}}
+                    <div class="col-md-6">
+                        <label class="form-label" for="jumlah_pesanan">
+                            Jumlah Pesanan
+                        </label>
+
+                        <input class="form-control @error('jumlah_pesanan') is-invalid @enderror" id="jumlah_pesanan"
+                            name="jumlah_pesanan" type="number" min="1" placeholder="Masukkan jumlah pesanan"
+                            value="{{ old('jumlah_pesanan', $produksi->jumlah_pesanan) }}" required>
+
+                        @error('jumlah_pesanan')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
+                    {{-- Status --}}
+                    <div class="col-md-6">
+                        <label class="form-label" for="status">
+                            Status
+                        </label>
+
+                        <select class="form-select @error('status') is-invalid @enderror" id="status" name="status"
+                            required>
+                            <option value="">
+                                Pilih status
+                            </option>
+
+                            <option value="Aktif" {{ old('status', $produksi->status) === 'Aktif' ? 'selected' : '' }}>
+                                Aktif
+                            </option>
+
+                            <option value="Proses" {{ old('status', $produksi->status) === 'Proses' ? 'selected' : '' }}>
+                                Proses
+                            </option>
+
+                            <option value="Nonaktif"
+                                {{ old('status', $produksi->status) === 'Nonaktif' ? 'selected' : '' }}>
+                                Nonaktif
+                            </option>
+                        </select>
+
+                        @error('status')
+                            <div class="invalid-feedback">
+                                {{ $message }}
+                            </div>
+                        @enderror
+                    </div>
+
+                </div>
+
+                {{-- Tombol --}}
+                <div class="d-flex justify-content-end gap-2 mt-4">
+                    <a href="{{ route('produksi.index') }}" class="btn btn-secondary">
+                        <i class="bi bi-x-circle me-1"></i>
+                        Batal
+                    </a>
+
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-check-circle me-1"></i>
+                        Update Data
+                    </button>
+                </div>
+
+            </form>
+
+        </section>
+
+    </div>
+
+    <script>
+        // Bootstrap validation script
+        (function() {
+            'use strict'
+            window.addEventListener('load', function() {
+                var forms = document.querySelectorAll('.needs-validation')
+                Array.prototype.slice.call(forms).forEach(function(form) {
+                    form.addEventListener('submit', function(event) {
+                        if (!form.checkValidity()) {
+                            event.preventDefault()
+                            event.stopPropagation()
+                        }
+                        form.classList.add('was-validated')
+                    }, false)
+                })
+            }, false)
+        }())
+    </script>
+@endsection
