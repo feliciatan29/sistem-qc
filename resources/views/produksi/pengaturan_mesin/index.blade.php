@@ -1,9 +1,68 @@
 @extends('produksi.layout')
 
-@section('content') 
+@push('styles')
+    <style>
+        /* ====================================================
+           Index - Visual Enhancements (no structural changes)
+        ==================================================== */
+        .table thead th {
+            font-size: 0.75rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: #6c757d;
+            background: #f8f9fa;
+            border-bottom: 2px solid #e9ecef;
+            padding: 12px 16px;
+            white-space: nowrap;
+        }
+        .table tbody td {
+            padding: 12px 16px;
+            vertical-align: middle;
+            border-bottom: 1px solid #f0f0f0;
+            font-size: 0.9rem;
+            color: #343a40;
+        }
+        .table tbody tr:last-child td {
+            border-bottom: none;
+        }
+        .table tbody tr:hover {
+            background-color: #f8fbff;
+            transition: background-color 0.15s;
+        }
+        .badge {
+            font-size: 0.75rem;
+            padding: 5px 12px;
+            border-radius: 50px;
+            font-weight: 600;
+        }
+        .btn-sm {
+            border-radius: 8px !important;
+            padding: 5px 10px;
+            font-size: 0.8rem;
+        }
+        .table-search {
+            border-radius: 0.5rem !important;
+            font-size: 0.875rem;
+            height: 38px;
+        }
+        .kode-mesin-badge {
+            background: #e8f0fe;
+            color: #1a56db;
+            padding: 3px 10px;
+            border-radius: 6px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            font-family: 'Courier New', monospace;
+            letter-spacing: 0.03em;
+        }
+    </style>
+@endpush
+
+@section('content')
 <div class="container-fluid px-3 px-lg-4 py-4">
 
-        {{-- Heading --}}
+    {{-- Heading --}}
     <div class="page-heading">
         <div class="page-heading-copy">
             <span class="page-icon">
@@ -24,189 +83,196 @@
         </div>
     </div>
 
-        {{-- Panel --}}
+    {{-- Panel --}}
     <section class="panel">
 
-            {{-- Header Panel --}}
-            <div class="panel-header d-flex justify-content-between align-items-center flex-wrap gap-3">
+        {{-- Header Panel --}}
+        <div class="panel-header d-flex justify-content-between align-items-center flex-wrap gap-3">
 
-            <div>
-                <h2 class="h5 mb-1 section-title">
-                    <i class="bi bi-sliders"></i>
-                    <span>Daftar Pengaturan Mesin</span>
-                </h2>
-            </div>
+        <div>
+            <h2 class="h5 mb-1 section-title">
+                <i class="bi bi-sliders"></i>
+                <span>Daftar Pengaturan Mesin</span>
+            </h2>
+        </div>
 
-                <div class="d-flex align-items-center flex-wrap gap-2">
+            <div class="d-flex align-items-center flex-wrap gap-2">
 
-                    <input class="form-control table-search" style="width:260px;" type="search"
-                        placeholder="🔍 Cari Pengaturan Mesin..." data-table-search="pengaturanTable">
+                <input class="form-control table-search" style="width:260px;" type="search"
+                    placeholder="🔍 Cari Pengaturan Mesin..." data-table-search="pengaturanTable">
 
-                <a href="{{ route('pengaturan-mesin.create') }}"
-                        class="btn btn-primary d-flex align-items-center shadow-sm">
+            <a href="{{ route('pengaturan-mesin.create') }}"
+                    class="btn btn-primary d-flex align-items-center shadow-sm">
 
-                        <i class="bi bi-plus-circle me-2"></i>
+                    <i class="bi bi-plus-circle me-2"></i>
 
-                    Tambah Data
+                Tambah Data
 
-                </a>
-
-            </div>
+            </a>
 
         </div>
 
-            {{-- Alert --}}
-            @if (session('success'))
-                <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
+    </div>
 
-                    <i class="bi bi-check-circle-fill me-2"></i>
+        {{-- Alert --}}
+        @if (session('success'))
+            <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
 
-                {{ session('success') }}
+                <i class="bi bi-check-circle-fill me-2"></i>
 
-                    <button type="button" class="btn-close" data-bs-dismiss="alert">
-                    </button>
+            {{ session('success') }}
 
-            </div>
-        @endif
+                <button type="button" class="btn-close" data-bs-dismiss="alert">
+                </button>
 
-            {{-- Table --}}
-        <div class="table-responsive">
+        </div>
+    @endif
 
-                <table class="table align-middle mb-0" id="pengaturanTable" data-searchable-table>
+        {{-- Table --}}
+    <div class="table-responsive">
 
-                <thead>
+            <table class="table align-middle mb-0" id="pengaturanTable" data-searchable-table>
 
-                    <tr>
+            <thead>
 
-                            <th width="60">
-                                ID
-                            </th>
+                <tr>
 
-                            <th>
-                                Kode Mesin
-                            </th>
+                        <th width="60">
+                            #
+                        </th>
 
-                            <th>
-                                Jenis Jaring
-                            </th>
+                        <th>
+                            Kode Mesin
+                        </th>
 
-                            <th>
-                                Ukuran Jaring
-                            </th>
+                        <th>
+                            Jenis Jaring
+                        </th>
 
-                            <th>
-                                MD Jaring
-                            </th>
+                        <th>
+                            Ukuran Jaring
+                        </th>
 
-                            <th>
-                                RPM Jaring
-                            </th>
+                        <th>
+                            MD Jaring
+                        </th>
 
-                            <th class="text-center" width="120">
-                                Status
-                            </th>
+                        <th>
+                            RPM Jaring
+                        </th>
 
-                            <th class="text-center" width="180">
-                                Aksi
-                            </th>
+                        <th class="text-center" width="120">
+                            Status
+                        </th>
 
-                    </tr>
+                        <th class="text-center" width="180">
+                            Aksi
+                        </th>
 
-                </thead>
+                </tr>
 
-                <tbody>
+            </thead>
 
-                    @forelse($pengaturan as $item)
-                    <tr>
+            <tbody>
 
-                                <td>
-                                    {{ $item->id }}
-                                </td>
+                @forelse($pengaturan as $item)
+                <tr>
 
-                        <td>
-                            <span class="fw-semibold">
-                                {{ $item->kode_mesin }}
+                            <td class="text-muted fw-semibold" style="font-size:0.8rem;">
+                                {{ $item->id }}
+                            </td>
+
+                    <td>
+                        <span class="kode-mesin-badge">
+                            {{ $item->kode_mesin }}
+                        </span>
+                    </td>
+
+                    <td>{{ $item->jenis_jaring }}</td>
+
+                    <td>{{ $item->ukuran_jaring }}</td>
+
+                    <td>
+                        <span class="text-dark fw-semibold">{{ $item->MD_jaring }}</span>
+                    </td>
+
+                    <td>
+                        <span class="text-dark fw-semibold">{{ $item->RPM_jaring }}</span>
+                    </td>
+
+                    <td class="text-center">
+
+                        @if($item->status == 'Aktif')
+
+                            <span class="badge bg-success">
+                                <i class="bi bi-check-circle-fill me-1"></i>{{ $item->status }}
                             </span>
-                        </td>
 
-                        <td>{{ $item->jenis_jaring }}</td>
+                        @elseif($item->status == 'Nonaktif')
 
-                        <td>{{ $item->ukuran_jaring }}</td>
+                            <span class="badge bg-danger">
+                                <i class="bi bi-x-circle-fill me-1"></i>{{ $item->status }}
+                            </span>
 
-                        <td>{{ $item->MD_jaring }}</td>
+                        @else
 
-                        <td>{{ $item->RPM_jaring }}</td>
+                            <span class="badge bg-secondary">
+                                {{ $item->status }}
+                            </span>
 
-                        <td>
+                        @endif
 
-                            @if($item->status == 'Aktif')
+                    </td>
 
-                                <span class="badge bg-success">
-                                    {{ $item->status }}
-                                </span>
+                    <td>
 
-                            @elseif($item->status == 'Nonaktif')
+                        <div class="d-flex gap-1 justify-content-center">
 
-                                <span class="badge bg-danger">
-                                    {{ $item->status }}
-                                </span>
+                            <a href="{{ route('pengaturan-mesin.edit',$item->id) }}"
+                               class="btn btn-warning btn-sm" title="Edit">
+                                <i class="bi bi-pencil-square"></i>
+                            </a>
 
-                            @else
+                            <form action="{{ route('pengaturan-mesin.destroy',$item->id) }}"
+                                  method="POST"
+                                  onsubmit="return confirm('Yakin ingin menghapus data ini?')">
 
-                                <span class="badge bg-secondary">
-                                    {{ $item->status }}
-                                </span>
+                                @csrf
+                                @method('DELETE')
 
-                            @endif
+                                <button type="submit"
+                                        class="btn btn-danger btn-sm" title="Hapus">
+                                    <i class="bi bi-trash"></i>
+                                </button>
 
-                        </td>
+                            </form>
 
-                        <td>
+                        </div>
 
-                            <div class="d-flex gap-1">
+                    </td>
 
-                                <a href="{{ route('pengaturan-mesin.edit',$item->id) }}"
-                                   class="btn btn-warning btn-sm">
-                                    <i class="bi bi-pencil-square"></i>
-                                </a>
+                </tr>
 
-                                <form action="{{ route('pengaturan-mesin.destroy',$item->id) }}"
-                                      method="POST"
-                                      onsubmit="return confirm('Yakin ingin menghapus data ini?')">
+                @empty
 
-                                    @csrf
-                                    @method('DELETE')
-
-                                    <button type="submit"
-                                            class="btn btn-danger btn-sm">
-                                        <i class="bi bi-trash"></i>
-                                    </button>
-
-                                </form>
-
-                            </div>
-
-                        </td>
-
-                    </tr>
-
-                    @empty
-
-                    <tr>
-                        <td colspan="8" class="text-center py-4">
+                <tr>
+                    <td colspan="8" class="text-center py-5">
+                        <div class="text-muted">
+                            <i class="bi bi-inbox fs-2 d-block mb-2"></i>
                             Data Pengaturan Mesin Belum Tersedia
-                        </td>
-                    </tr>
+                        </div>
+                    </td>
+                </tr>
 
-                    @endforelse
+                @endforelse
 
-                </tbody>
+            </tbody>
 
-            </table>
+        </table>
 
-        </div>
+    </div>
 
-    </section>
+</section>
 
 </div>
 
