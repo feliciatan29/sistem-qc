@@ -21,9 +21,7 @@ use App\Http\Controllers\PengaturanController;
 |--------------------------------------------------------------------------
 */
 
-Route::get('/', function () {
-    return view('produksi.beranda');
-});
+
 
 /*
 |--------------------------------------------------------------------------
@@ -56,3 +54,13 @@ Route::resource(
     'pengaturan-mesin',
     PengaturanController::class
 );
+
+/*
+|--------------------------------------------------------------------------
+| Dashboard Quality Control (QC)
+|--------------------------------------------------------------------------
+*/
+
+Route::get('/qc/dashboard', function () {
+    return view('qc.berandaqc');
+})->name('qc.dashboard');

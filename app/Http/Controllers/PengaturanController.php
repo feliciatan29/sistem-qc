@@ -2,88 +2,75 @@
 
 namespace App\Http\Controllers;
 
-use Illuminate\Http\Request;
 use App\Models\PengaturanMesin;
+use Illuminate\Http\Request;
+
 class PengaturanController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
         $pengaturan = PengaturanMesin::all();
 
-        return view(
-        'produksi.pengaturan_mesin.index',
-        compact('pengaturan')
-    );
+        return view('produksi.pengaturan_mesin.index', compact('pengaturan'));
     }
 
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function create()
     {
-        //
+        return view('produksi.pengaturan_mesin.create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
     public function store(Request $request)
     {
-        //
+        $validated = $request->validate([
+            'kode_mesin'   => 'required|string|max:255|unique:tbl_pengaturan,kode_mesin',
+            'jenis_jaring' => 'required|string|max:255',
+            'ukuran_jaring'=> 'required|string|max:255',
+            'MD_jaring'    => 'required|numeric|min:0',
+            'RPM_jaring'   => 'required|numeric|min:0',
+            'status'       => 'required|in:Aktif,Nonaktif',
+        ]);
+
+        PengaturanMesin::create($validated);
+
+        return redirect()
+            ->route('pengaturan-mesin.index')
+            ->with('success', 'Data Pengaturan Mesin berhasil ditambahkan.');
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+    public function show(PengaturanMesin $pengaturan)
     {
         //
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
+    public function edit(PengaturanMesin $pengaturan)
     {
-        //
+        return view('produksi.pengaturan_mesin.edit', compact('pengaturan'));
     }
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
+    public function update(Request $request, PengaturanMesin $pengaturan)
     {
-        //
+        $validated = $request->validate([
+            'kode_mesin'   => 'required|string|max:255|unique:tbl_pengaturan,kode_mesin,' . $pengaturan->id,
+            'jenis_jaring' => 'required|string|max:255',
+            'ukuran_jaring'=> 'required|string|max:255',
+            'MD_jaring'    => 'required|numeric|min:0',
+            'RPM_jaring'   => 'required|numeric|min:0',
+            'status'       => 'required|in:Aktif,Nonaktif',
+        ]);
+
+        $pengaturan->update($validated);
+
+        return redirect()
+            ->route('pengaturan-mesin.index')
+            ->with('success', 'Data Pengaturan Mesin berhasil diperbarui.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
+    public function destroy(PengaturanMesin $pengaturan)
     {
-        //
+        $pengaturan->delete();
+
+        return redirect()
+            ->route('pengaturan-mesin.index')
+            ->with('success', 'Data Pengaturan Mesin berhasil dihapus.');
     }
 }

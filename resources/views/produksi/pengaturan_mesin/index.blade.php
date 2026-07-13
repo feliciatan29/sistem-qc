@@ -1,17 +1,22 @@
 @extends('produksi.layout')
 
-@section('content')
-
+@section('content') 
 <div class="container-fluid px-3 px-lg-4 py-4">
 
+        {{-- Heading --}}
     <div class="page-heading">
         <div class="page-heading-copy">
             <span class="page-icon">
                 <i class="bi bi-gear-fill"></i>
             </span>
+
             <div>
                 <p class="eyebrow mb-1">Produksi</p>
-                <h1 class="h3 mb-1">Pengaturan Mesin</h1>
+
+                    <h1 class="h3 mb-1">
+                        Pengaturan Mesin
+                    </h1>
+
                 <p class="text-muted mb-0">
                     Data konfigurasi mesin produksi jaring.
                 </p>
@@ -19,9 +24,11 @@
         </div>
     </div>
 
+        {{-- Panel --}}
     <section class="panel">
 
-        <div class="panel-header d-flex justify-content-between align-items-center flex-wrap gap-2">
+            {{-- Header Panel --}}
+            <div class="panel-header d-flex justify-content-between align-items-center flex-wrap gap-3">
 
             <div>
                 <h2 class="h5 mb-1 section-title">
@@ -30,56 +37,91 @@
                 </h2>
             </div>
 
-            <div class="d-flex gap-2">
+                <div class="d-flex align-items-center flex-wrap gap-2">
 
-                <input
-                    class="form-control form-control-sm table-search"
-                    type="search"
-                    placeholder="Cari Pengaturan Mesin"
-                    data-table-search="pengaturanTable">
+                    <input class="form-control table-search" style="width:260px;" type="search"
+                        placeholder="🔍 Cari Pengaturan Mesin..." data-table-search="pengaturanTable">
 
                 <a href="{{ route('pengaturan-mesin.create') }}"
-                   class="btn btn-primary btn-sm">
-                    <i class="bi bi-plus-circle"></i>
+                        class="btn btn-primary d-flex align-items-center shadow-sm">
+
+                        <i class="bi bi-plus-circle me-2"></i>
+
                     Tambah Data
+
                 </a>
 
             </div>
 
         </div>
 
-        @if(session('success'))
-            <div class="alert alert-success m-3">
+            {{-- Alert --}}
+            @if (session('success'))
+                <div class="alert alert-success alert-dismissible fade show m-3" role="alert">
+
+                    <i class="bi bi-check-circle-fill me-2"></i>
+
                 {{ session('success') }}
+
+                    <button type="button" class="btn-close" data-bs-dismiss="alert">
+                    </button>
+
             </div>
         @endif
 
+            {{-- Table --}}
         <div class="table-responsive">
 
-            <table class="table align-middle mb-0"
-                   id="pengaturanTable"
-                   data-searchable-table>
+                <table class="table align-middle mb-0" id="pengaturanTable" data-searchable-table>
 
                 <thead>
+
                     <tr>
-                        <th>ID</th>
-                        <th>Kode Mesin</th>
-                        <th>Jenis Jaring</th>
-                        <th>Ukuran Jaring</th>
-                        <th>MD Jaring</th>
-                        <th>RPM Jaring</th>
-                        <th>Status</th>
-                        <th width="150">Aksi</th>
+
+                            <th width="60">
+                                ID
+                            </th>
+
+                            <th>
+                                Kode Mesin
+                            </th>
+
+                            <th>
+                                Jenis Jaring
+                            </th>
+
+                            <th>
+                                Ukuran Jaring
+                            </th>
+
+                            <th>
+                                MD Jaring
+                            </th>
+
+                            <th>
+                                RPM Jaring
+                            </th>
+
+                            <th class="text-center" width="120">
+                                Status
+                            </th>
+
+                            <th class="text-center" width="180">
+                                Aksi
+                            </th>
+
                     </tr>
+
                 </thead>
 
                 <tbody>
 
                     @forelse($pengaturan as $item)
-
                     <tr>
 
-                        <td>{{ $item->id }}</td>
+                                <td>
+                                    {{ $item->id }}
+                                </td>
 
                         <td>
                             <span class="fw-semibold">
