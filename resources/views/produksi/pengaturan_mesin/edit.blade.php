@@ -97,7 +97,7 @@
                         </div>
 
                         {{-- Kode Mesin --}}
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label" for="kode_mesin">
                                 Kode Mesin
                             </label>
@@ -115,17 +115,48 @@
                             </div>
                         </div>
 
+                        {{-- Bulan Produksi --}}
+                        <div class="col-md-4">
+                            <label class="form-label" for="bulan_produksi">
+                                Bulan Produksi
+                            </label>
+
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-calendar-month"></i></span>
+                                <select class="form-select @error('bulan_produksi') is-invalid @enderror" id="bulan_produksi"
+                                    name="bulan_produksi" required>
+                                    <option value="">Pilih bulan produksi</option>
+                                    @foreach($bulanProduksiList as $bulan)
+                                        <option value="{{ $bulan }}" {{ old('bulan_produksi', $pengaturan->bulan_produksi) == $bulan ? 'selected' : '' }}>
+                                            {{ \Carbon\Carbon::parse($bulan)->translatedFormat('F Y') }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('bulan_produksi')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+                        </div>
+
                         {{-- Jenis Jaring --}}
-                        <div class="col-md-6">
+                        <div class="col-md-4">
                             <label class="form-label" for="jenis_jaring">
                                 Jenis Jaring
                             </label>
 
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-grid-3x3"></i></span>
-                                <input class="form-control @error('jenis_jaring') is-invalid @enderror" id="jenis_jaring"
-                                    name="jenis_jaring" type="text" placeholder="Masukkan jenis jaring"
-                                    value="{{ old('jenis_jaring', $pengaturan->jenis_jaring) }}" required>
+                                <select class="form-select @error('jenis_jaring') is-invalid @enderror" id="jenis_jaring"
+                                    name="jenis_jaring" required>
+                                    <option value="">Pilih jenis jaring</option>
+                                    @foreach($jenisJaringList as $jenis)
+                                        <option value="{{ $jenis }}" {{ old('jenis_jaring', $pengaturan->jenis_jaring) == $jenis ? 'selected' : '' }}>
+                                            {{ $jenis }}
+                                        </option>
+                                    @endforeach
+                                </select>
                                 @error('jenis_jaring')
                                     <div class="invalid-feedback">
                                         {{ $message }}

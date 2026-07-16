@@ -146,6 +146,10 @@
                         </th>
 
                         <th>
+                            Bulan Produksi
+                        </th>
+
+                        <th>
                             Jenis Jaring
                         </th>
 
@@ -188,6 +192,10 @@
                         </span>
                     </td>
 
+                    <td>
+                        {{ $item->bulan_produksi ? \Carbon\Carbon::parse($item->bulan_produksi)->translatedFormat('F Y') : '-' }}
+                    </td>
+
                     <td>{{ $item->jenis_jaring }}</td>
 
                     <td>{{ $item->ukuran_jaring }}</td>
@@ -226,22 +234,22 @@
 
                     <td>
 
-                        <div class="d-flex gap-1 justify-content-center">
+                        <div class="d-flex gap-2 justify-content-center align-items-center">
 
                             <a href="{{ route('pengaturan-mesin.edit',$item->id) }}"
-                               class="btn btn-warning btn-sm" title="Edit">
+                               class="btn btn-warning btn-sm d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" title="Edit">
                                 <i class="bi bi-pencil-square"></i>
                             </a>
 
                             <form action="{{ route('pengaturan-mesin.destroy',$item->id) }}"
-                                  method="POST"
+                                  method="POST" class="m-0 p-0"
                                   onsubmit="return confirm('Yakin ingin menghapus data ini?')">
 
                                 @csrf
                                 @method('DELETE')
 
                                 <button type="submit"
-                                        class="btn btn-danger btn-sm" title="Hapus">
+                                        class="btn btn-danger btn-sm d-inline-flex align-items-center justify-content-center" style="width: 32px; height: 32px;" title="Hapus">
                                     <i class="bi bi-trash"></i>
                                 </button>
 
@@ -256,7 +264,7 @@
                 @empty
 
                 <tr>
-                    <td colspan="8" class="text-center py-5">
+                    <td colspan="9" class="text-center py-5">
                         <div class="text-muted">
                             <i class="bi bi-inbox fs-2 d-block mb-2"></i>
                             Data Pengaturan Mesin Belum Tersedia

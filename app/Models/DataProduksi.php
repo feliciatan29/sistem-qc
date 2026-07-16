@@ -17,4 +17,9 @@ class DataProduksi extends Model
         'jumlah_pesanan',
         'status'
     ];
+
+    public function pemeriksaanQC()
+    {
+        return $this->hasMany(PemeriksaanQC::class, 'id_produksi', 'id');
+    }
 }

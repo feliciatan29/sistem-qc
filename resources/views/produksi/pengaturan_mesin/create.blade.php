@@ -1,57 +1,15 @@
 @extends('produksi.layout')
 
 @push('styles')
-    {{-- Select2 CSS --}}
-    <link href="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/css/select2.min.css" rel="stylesheet" />
     <style>
         /* ====================================================
-           Custom Select2 - Match Bootstrap 5 style
-        ==================================================== */
-        .select2-container .select2-selection--single {
-            height: 42px !important;
-            border: 1px solid #dee2e6 !important;
-            border-radius: 0.5rem !important;
-            transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        .select2-container--default .select2-selection--single .select2-selection__rendered {
-            line-height: 40px !important;
-            color: #212529 !important;
-            padding-left: 14px !important;
-            font-size: 0.9rem;
-        }
-        .select2-container--default .select2-selection--single .select2-selection__arrow {
-            height: 40px !important;
-        }
-        .select2-container--default.select2-container--focus .select2-selection--single {
-            border-color: #0d6efd !important;
-            box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15) !important;
-        }
-        .select2-dropdown {
-            border: 1px solid #dee2e6 !important;
-            border-radius: 0.5rem !important;
-            box-shadow: 0 0.5rem 1.5rem rgba(0, 0, 0, 0.12) !important;
-            font-size: 0.9rem;
-        }
-        .select2-container--default .select2-results__option--highlighted[aria-selected] {
-            background-color: #0d6efd !important;
-        }
-        .select2-search--dropdown .select2-search__field {
-            border-radius: 0.375rem !important;
-            border: 1px solid #dee2e6 !important;
-            padding: 6px 10px !important;
-        }
-
-        /* ====================================================
-           Form enhancements
+           Create - Visual Enhancements (no structural changes)
         ==================================================== */
         .form-control, .form-select {
             border-radius: 0.5rem !important;
             height: 42px;
             font-size: 0.9rem;
             transition: border-color 0.2s, box-shadow 0.2s;
-        }
-        textarea.form-control {
-            height: auto !important;
         }
         .form-control:focus, .form-select:focus {
             box-shadow: 0 0 0 0.2rem rgba(13, 110, 253, 0.15) !important;
@@ -69,10 +27,6 @@
             border-color: #dee2e6;
             color: #6c757d;
         }
-
-        /* ====================================================
-           Section divider label
-        ==================================================== */
         .form-section-label {
             font-size: 0.7rem;
             font-weight: 700;
@@ -96,9 +50,17 @@
                     <i class="bi bi-plus-circle fs-3"></i>
                 </span>
                 <div>
-                    <p class="eyebrow mb-1">Produksi</p>
-                    <h1 class="h3 mb-1 fw-bold">Tambah Pengaturan Mesin</h1>
-                    <p class="text-muted mb-0 small">Tambahkan parameter operasional untuk run produksi jaring.</p>
+                    <p class="eyebrow mb-1">
+                        Produksi
+                    </p>
+
+                    <h1 class="h3 mb-1 fw-bold">
+                        Tambah Data Pengaturan Mesin
+                    </h1>
+
+                    <p class="text-muted mb-0 small">
+                        Tambahkan konfigurasi mesin produksi jaring baru.
+                    </p>
                 </div>
             </div>
         </div>
@@ -109,175 +71,196 @@
             <div class="panel-header p-4 border-bottom d-flex align-items-center gap-2">
                 <i class="bi bi-ui-checks-grid text-primary fs-5"></i>
                 <div>
-                    <h2 class="h5 mb-0 fw-bold text-dark">Form Tambah Pengaturan Mesin</h2>
-                    <p class="text-muted mb-0 small">Pilih data produksi dan isi parameter operasional mesin.</p>
+                    <h2 class="h5 mb-0 fw-bold text-dark">
+                        Form Tambah Data Pengaturan Mesin
+                    </h2>
+
+                    <p class="text-muted mb-0 small">
+                        Masukkan konfigurasi mesin produksi.
+                    </p>
                 </div>
             </div>
 
-            <div class="p-4">
-                <form action="{{ route('pengaturan-mesin.store') }}" method="POST" class="needs-validation" novalidate>
-                    @csrf
+            <form action="{{ route('pengaturan-mesin.store') }}" method="POST" class="needs-validation" novalidate>
+                @csrf
 
+                <div class="p-4">
                     <div class="row g-4">
 
-                        {{-- === Bagian: Referensi Produksi === --}}
+                        {{-- === Identitas Mesin === --}}
                         <div class="col-12">
                             <div class="form-section-label">
-                                <i class="bi bi-link-45deg me-1"></i> Referensi Data Produksi
+                                <i class="bi bi-cpu me-1"></i> Identitas Mesin
                             </div>
                         </div>
 
-                        {{-- Data Produksi Select2 --}}
-                        <div class="col-md-12">
-                            <label class="form-label" for="data_produksi_id">
-                                Hubungkan ke Run Data Produksi
+                        {{-- Kode Mesin --}}
+                        <div class="col-md-4">
+                            <label class="form-label" for="kode_mesin">
+                                Kode Mesin
                             </label>
-                            <select class="form-select select2 @error('data_produksi_id') is-invalid @enderror"
-                                    id="data_produksi_id" name="data_produksi_id" required style="width: 100%;">
-                                <option value=""></option>
-                                @foreach($dataproduksi as $dp)
-                                    <option value="{{ $dp->id }}" {{ old('data_produksi_id') == $dp->id ? 'selected' : '' }}>
-                                        {{ \Carbon\Carbon::parse($dp->bulan_produksi)->translatedFormat('F Y') }}
-                                        | {{ $dp->jenis_jaring }}
-                                        | {{ $dp->jumlah_pesanan }} pcs
-                                        | {{ ucfirst($dp->status) }}
-                                    </option>
-                                @endforeach
-                            </select>
-                            @error('data_produksi_id')
-                                <div class="invalid-feedback d-block">
-                                    {{ $message }}
-                                </div>
-                            @enderror
-                            <div class="form-text text-muted small mt-1">
-                                <i class="bi bi-info-circle me-1"></i>
-                                Format: Bulan Produksi | Jenis Jaring | Jumlah Pesanan | Status
+
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-upc-scan"></i></span>
+                                <input class="form-control @error('kode_mesin') is-invalid @enderror" id="kode_mesin"
+                                    name="kode_mesin" type="text" placeholder="Masukkan kode mesin"
+                                    value="{{ old('kode_mesin') }}" required>
+                                @error('kode_mesin')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
                             </div>
                         </div>
 
-                        {{-- === Bagian: Parameter Operasional === --}}
+                        {{-- Bulan Produksi --}}
+                        <div class="col-md-4">
+                            <label class="form-label" for="bulan_produksi">
+                                Bulan Produksi
+                            </label>
+
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-calendar-month"></i></span>
+                                <select class="form-select @error('bulan_produksi') is-invalid @enderror" id="bulan_produksi"
+                                    name="bulan_produksi" required>
+                                    <option value="">Pilih bulan produksi</option>
+                                    @foreach($bulanProduksiList as $bulan)
+                                        <option value="{{ $bulan }}" {{ old('bulan_produksi') == $bulan ? 'selected' : '' }}>
+                                            {{ \Carbon\Carbon::parse($bulan)->translatedFormat('F Y') }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('bulan_produksi')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- Jenis Jaring --}}
+                        <div class="col-md-4">
+                            <label class="form-label" for="jenis_jaring">
+                                Jenis Jaring
+                            </label>
+
+                            <div class="input-group">
+                                <span class="input-group-text"><i class="bi bi-grid-3x3"></i></span>
+                                <select class="form-select @error('jenis_jaring') is-invalid @enderror" id="jenis_jaring"
+                                    name="jenis_jaring" required>
+                                    <option value="">Pilih jenis jaring</option>
+                                    @foreach($jenisJaringList as $jenis)
+                                        <option value="{{ $jenis }}" {{ old('jenis_jaring') == $jenis ? 'selected' : '' }}>
+                                            {{ $jenis }}
+                                        </option>
+                                    @endforeach
+                                </select>
+                                @error('jenis_jaring')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
+                                @enderror
+                            </div>
+                        </div>
+
+                        {{-- === Spesifikasi Jaring === --}}
                         <div class="col-12 mt-2">
                             <div class="form-section-label">
-                                <i class="bi bi-sliders me-1"></i> Parameter Operasional Mesin
+                                <i class="bi bi-rulers me-1"></i> Spesifikasi Jaring
                             </div>
                         </div>
 
-                        {{-- Suhu Mesin --}}
+                        {{-- Ukuran Jaring --}}
                         <div class="col-md-4">
-                            <label class="form-label" for="suhu_mesin">
-                                Suhu Mesin
+                            <label class="form-label" for="ukuran_jaring">
+                                Ukuran Jaring
                             </label>
+
                             <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-thermometer-half"></i></span>
-                                <input class="form-control @error('suhu_mesin') is-invalid @enderror" id="suhu_mesin"
-                                    name="suhu_mesin" type="number" step="0.1" min="0" placeholder="Contoh: 210.5"
-                                    value="{{ old('suhu_mesin') }}" required>
-                                <span class="input-group-text" style="border-radius: 0 0.5rem 0.5rem 0 !important;">°C</span>
-                                @error('suhu_mesin')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                <span class="input-group-text"><i class="bi bi-aspect-ratio"></i></span>
+                                <input class="form-control @error('ukuran_jaring') is-invalid @enderror" id="ukuran_jaring"
+                                    name="ukuran_jaring" type="text" placeholder="Masukkan ukuran jaring"
+                                    value="{{ old('ukuran_jaring') }}" required>
+                                @error('ukuran_jaring')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
                         </div>
 
-                        {{-- Kecepatan Mesin --}}
+                        {{-- MD Jaring --}}
                         <div class="col-md-4">
-                            <label class="form-label" for="kecepatan_mesin">
-                                Kecepatan Mesin
+                            <label class="form-label" for="MD_jaring">
+                                MD Jaring
                             </label>
+
                             <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-speedometer2"></i></span>
-                                <input class="form-control @error('kecepatan_mesin') is-invalid @enderror" id="kecepatan_mesin"
-                                    name="kecepatan_mesin" type="number" step="0.1" min="0" placeholder="Contoh: 45.0"
-                                    value="{{ old('kecepatan_mesin') }}" required>
-                                <span class="input-group-text" style="border-radius: 0 0.5rem 0.5rem 0 !important;">m/min</span>
-                                @error('kecepatan_mesin')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                <span class="input-group-text"><i class="bi bi-arrows-expand"></i></span>
+                                <input class="form-control @error('MD_jaring') is-invalid @enderror" id="MD_jaring" name="MD_jaring"
+                                    type="number" step="0.01" min="0" placeholder="Masukkan MD jaring"
+                                    value="{{ old('MD_jaring') }}" required>
+                                @error('MD_jaring')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
                         </div>
 
-                        {{-- Tekanan Mesin --}}
+                        {{-- RPM Jaring --}}
                         <div class="col-md-4">
-                            <label class="form-label" for="tekanan_mesin">
-                                Tekanan Mesin
+                            <label class="form-label" for="RPM_jaring">
+                                RPM Jaring
                             </label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-arrow-down-circle"></i></span>
-                                <input class="form-control @error('tekanan_mesin') is-invalid @enderror" id="tekanan_mesin"
-                                    name="tekanan_mesin" type="number" step="0.1" min="0" placeholder="Contoh: 12.0"
-                                    value="{{ old('tekanan_mesin') }}" required>
-                                <span class="input-group-text" style="border-radius: 0 0.5rem 0.5rem 0 !important;">bar</span>
-                                @error('tekanan_mesin')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
-                            </div>
-                        </div>
 
-                        {{-- RPM Mesin --}}
-                        <div class="col-md-4">
-                            <label class="form-label" for="rpm_mesin">
-                                RPM Mesin
-                            </label>
                             <div class="input-group">
                                 <span class="input-group-text"><i class="bi bi-arrow-repeat"></i></span>
-                                <input class="form-control @error('rpm_mesin') is-invalid @enderror" id="rpm_mesin"
-                                    name="rpm_mesin" type="number" step="1" min="0" placeholder="Contoh: 1500"
-                                    value="{{ old('rpm_mesin') }}" required>
+                                <input class="form-control @error('RPM_jaring') is-invalid @enderror" id="RPM_jaring"
+                                    name="RPM_jaring" type="number" step="0.01" min="0" placeholder="Masukkan RPM jaring"
+                                    value="{{ old('RPM_jaring') }}" required>
                                 <span class="input-group-text" style="border-radius: 0 0.5rem 0.5rem 0 !important;">RPM</span>
-                                @error('rpm_mesin')
-                                    <div class="invalid-feedback">{{ $message }}</div>
+                                @error('RPM_jaring')
+                                    <div class="invalid-feedback">
+                                        {{ $message }}
+                                    </div>
                                 @enderror
                             </div>
                         </div>
 
-                        {{-- Waktu Operasi --}}
-                        <div class="col-md-4">
-                            <label class="form-label" for="waktu_operasi">
-                                Waktu Operasi
-                            </label>
-                            <div class="input-group">
-                                <span class="input-group-text"><i class="bi bi-clock"></i></span>
-                                <input class="form-control @error('waktu_operasi') is-invalid @enderror" id="waktu_operasi"
-                                    name="waktu_operasi" type="number" step="0.1" min="0" placeholder="Contoh: 480"
-                                    value="{{ old('waktu_operasi') }}" required>
-                                <span class="input-group-text" style="border-radius: 0 0.5rem 0.5rem 0 !important;">Menit</span>
-                                @error('waktu_operasi')
-                                    <div class="invalid-feedback">{{ $message }}</div>
-                                @enderror
+                        {{-- === Status === --}}
+                        <div class="col-12 mt-2">
+                            <div class="form-section-label">
+                                <i class="bi bi-toggle-on me-1"></i> Status
                             </div>
                         </div>
 
                         {{-- Status --}}
-                        <div class="col-md-4">
+                        <div class="col-md-6">
                             <label class="form-label" for="status">
-                                Status Parameter
+                                Status
                             </label>
-                            <select class="form-select @error('status') is-invalid @enderror" id="status" name="status" required>
-                                <option value="Aktif" {{ old('status', 'Aktif') === 'Aktif' ? 'selected' : '' }}>Aktif</option>
-                                <option value="Nonaktif" {{ old('status') === 'Nonaktif' ? 'selected' : '' }}>Nonaktif</option>
+
+                            <select class="form-select @error('status') is-invalid @enderror" id="status" name="status"
+                                required>
+                                <option value="">
+                                    Pilih status
+                                </option>
+
+                                <option value="Aktif" {{ old('status') === 'Aktif' ? 'selected' : '' }}>
+                                    Aktif
+                                </option>
+
+                                <option value="Nonaktif"
+                                    {{ old('status') === 'Nonaktif' ? 'selected' : '' }}>
+                                    Nonaktif
+                                </option>
                             </select>
+
                             @error('status')
-                                <div class="invalid-feedback">{{ $message }}</div>
-                            @enderror
-                        </div>
-
-                        {{-- === Bagian: Catatan === --}}
-                        <div class="col-12 mt-2">
-                            <div class="form-section-label">
-                                <i class="bi bi-journal-text me-1"></i> Catatan
-                            </div>
-                        </div>
-
-                        {{-- Keterangan --}}
-                        <div class="col-md-12">
-                            <label class="form-label" for="keterangan">
-                                Keterangan / Catatan Operasi
-                            </label>
-                            <textarea class="form-control @error('keterangan') is-invalid @enderror" id="keterangan"
-                                name="keterangan" rows="3"
-                                placeholder="Tambahkan catatan khusus mesin atau kestabilan parameter selama operasi...">{{ old('keterangan') }}</textarea>
-                            @error('keterangan')
-                                <div class="invalid-feedback">{{ $message }}</div>
+                                <div class="invalid-feedback">
+                                    {{ $message }}
+                                </div>
                             @enderror
                         </div>
 
@@ -289,36 +272,24 @@
                             <i class="bi bi-x-circle me-1"></i>
                             Batal
                         </a>
+
                         <button type="submit" class="btn btn-primary rounded-3 px-4">
                             <i class="bi bi-check-circle me-1"></i>
                             Simpan Data
                         </button>
                     </div>
+                </div>
 
-                </form>
-            </div>
+            </form>
 
         </section>
 
     </div>
+
 @endsection
 
 @push('scripts')
-    {{-- jQuery & Select2 JS --}}
-    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/select2@4.1.0-rc.0/dist/js/select2.min.js"></script>
     <script>
-        $(document).ready(function() {
-            $('.select2').select2({
-                placeholder: "Pilih Run Data Produksi...",
-                allowClear: true,
-                language: {
-                    noResults: function() { return "Data tidak ditemukan"; },
-                    searching: function() { return "Mencari..."; }
-                }
-            });
-        });
-
         // Bootstrap validation script
         (function() {
             'use strict'

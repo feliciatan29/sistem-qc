@@ -125,13 +125,15 @@
   {{-- ==================== CARD STATISTIK ==================== --}}
   <section class="row g-3 mt-1" aria-label="Statistik Quality Control">
     <div class="col-12 col-sm-6 col-xl-3">
-      <article class="metric-card metric-primary">
-        <div class="metric-top">
-          <span class="metric-label">Total Data Produksi</span>
-          <span class="metric-icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
+      <article class="metric-card metric-primary h-100 d-flex flex-column justify-content-between">
+        <div>
+          <div class="metric-top">
+            <span class="metric-label">Total Data Produksi</span>
+            <span class="metric-icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
+          </div>
+          <div class="metric-value">12.480</div>
         </div>
-        <div class="metric-value">12.480</div>
-        <div class="metric-meta">
+        <div class="metric-meta mt-auto pt-2">
           <span class="text-success">+4.2%</span>
           <span>dari bulan lalu</span>
         </div>
@@ -139,13 +141,15 @@
     </div>
 
     <div class="col-12 col-sm-6 col-xl-3">
-      <article class="metric-card metric-danger">
-        <div class="metric-top">
-          <span class="metric-label">Total Data Defect</span>
-          <span class="metric-icon"><i class="bi bi-exclamation-circle" aria-hidden="true"></i></span>
+      <article class="metric-card metric-danger h-100 d-flex flex-column justify-content-between">
+        <div>
+          <div class="metric-top">
+            <span class="metric-label">Total Data Defect</span>
+            <span class="metric-icon"><i class="bi bi-exclamation-circle" aria-hidden="true"></i></span>
+          </div>
+          <div class="metric-value">342</div>
         </div>
-        <div class="metric-value">342</div>
-        <div class="metric-meta">
+        <div class="metric-meta mt-auto pt-2">
           <span class="text-danger">+1.8%</span>
           <span>dari bulan lalu</span>
         </div>
@@ -153,26 +157,30 @@
     </div>
 
     <div class="col-12 col-sm-6 col-xl-3">
-      <article class="metric-card metric-warning">
-        <div class="metric-top">
-          <span class="metric-label">Persentase Defect</span>
-          <span class="metric-icon"><i class="bi bi-percent" aria-hidden="true"></i></span>
+      <article class="metric-card metric-warning h-100 d-flex flex-column justify-content-between">
+        <div>
+          <div class="metric-top">
+            <span class="metric-label">Persentase Defect</span>
+            <span class="metric-icon"><i class="bi bi-percent" aria-hidden="true"></i></span>
+          </div>
+          <div class="metric-value">2,74%</div>
         </div>
-        <div class="metric-value">2,74%</div>
-        <div class="metric-meta">
+        <div class="metric-meta mt-auto pt-2">
           <span class="text-muted">Batas toleransi 3%</span>
         </div>
       </article>
     </div>
 
     <div class="col-12 col-sm-6 col-xl-3">
-      <article class="metric-card metric-success">
-        <div class="metric-top">
-          <span class="metric-label">Defect Dominan</span>
-          <span class="metric-icon"><i class="bi bi-bar-chart-fill" aria-hidden="true"></i></span>
+      <article class="metric-card metric-success h-100 d-flex flex-column justify-content-between">
+        <div>
+          <div class="metric-top">
+            <span class="metric-label">Defect Dominan</span>
+            <span class="metric-icon"><i class="bi bi-bar-chart-fill" aria-hidden="true"></i></span>
+          </div>
+          <div class="metric-value text-truncate" title="Sobek Jaring" style="font-size: 1.75rem;">Sobek Jaring</div>
         </div>
-        <div class="metric-value">Sobek Jaring</div>
-        <div class="metric-meta">
+        <div class="metric-meta mt-auto pt-2">
           <span class="text-muted">35% dari total defect</span>
         </div>
       </article>
@@ -182,45 +190,29 @@
   {{-- ==================== PANEL GRAFIK ==================== --}}
   <section class="row g-3 mt-1">
     <div class="col-12 col-xl-6">
-      <div class="panel">
+      <div class="panel h-100">
         <div class="panel-header">
           <div>
-            <h2 class="h5 mb-1 section-title"><i class="bi bi-graph-up-arrow" aria-hidden="true"></i><span>Grafik Defect Berdasarkan Jenis Jaring</span></h2>
+            <h2 class="h5 mb-1 section-title"><i class="bi bi-graph-up-arrow text-primary" aria-hidden="true"></i><span>Grafik Defect Berdasarkan Jenis Jaring</span></h2>
             <p class="text-muted mb-0">Distribusi jumlah defect per jenis jaring produksi.</p>
           </div>
         </div>
-
-        {{-- TODO: Ganti dengan Chart.js, contoh: new Chart(document.getElementById('chartJenisJaring'), {...}) --}}
-        <div class="chart-placeholder">
-          <div class="chart-bars" aria-label="Grafik dummy defect berdasarkan jenis jaring">
-            <div class="chart-column bar-42"><span></span><small>Jaring A</small></div>
-            <div class="chart-column bar-58"><span></span><small>Jaring B</small></div>
-            <div class="chart-column bar-72"><span></span><small>Jaring C</small></div>
-            <div class="chart-column bar-51"><span></span><small>Jaring D</small></div>
-            <div class="chart-column bar-35"><span></span><small>Jaring E</small></div>
-          </div>
+        <div class="chart-placeholder px-3 pb-3">
+          <canvas id="chartJenisJaring"></canvas>
         </div>
       </div>
     </div>
 
     <div class="col-12 col-xl-6">
-      <div class="panel">
+      <div class="panel h-100">
         <div class="panel-header">
           <div>
-            <h2 class="h5 mb-1 section-title"><i class="bi bi-bar-chart-steps" aria-hidden="true"></i><span>Diagram Pareto</span></h2>
+            <h2 class="h5 mb-1 section-title"><i class="bi bi-bar-chart-steps text-danger" aria-hidden="true"></i><span>Diagram Pareto</span></h2>
             <p class="text-muted mb-0">Prioritas jenis defect berdasarkan frekuensi kumulatif.</p>
           </div>
         </div>
-
-        {{-- TODO: Ganti dengan Chart.js tipe combo (bar + line) untuk diagram pareto --}}
-        <div class="chart-placeholder">
-          <div class="chart-bars" aria-label="Grafik dummy diagram pareto">
-            <div class="chart-column bar-83"><span></span><small>Sobek</small></div>
-            <div class="chart-column bar-66"><span></span><small>Bolong</small></div>
-            <div class="chart-column bar-48"><span></span><small>Simpul</small></div>
-            <div class="chart-column bar-30"><span></span><small>Kotor</small></div>
-            <div class="chart-column bar-18"><span></span><small>Lainnya</small></div>
-          </div>
+        <div class="chart-placeholder px-3 pb-3">
+          <canvas id="chartPareto"></canvas>
         </div>
       </div>
     </div>
@@ -229,19 +221,12 @@
       <div class="panel h-100">
         <div class="panel-header">
           <div>
-            <h2 class="h5 mb-1 section-title"><i class="bi bi-diagram-3" aria-hidden="true"></i><span>Prioritas Risiko FMEA</span></h2>
+            <h2 class="h5 mb-1 section-title"><i class="bi bi-diagram-3 text-warning" aria-hidden="true"></i><span>Prioritas Risiko FMEA</span></h2>
             <p class="text-muted mb-0">Peringkat risiko berdasarkan nilai RPN tertinggi.</p>
           </div>
         </div>
-
-        {{-- TODO: Ganti dengan tabel/Chart.js horizontal bar untuk nilai RPN --}}
-        <div class="chart-placeholder">
-          <ul class="fmea-list">
-            <li><span>Setting Mesin</span> <span class="badge text-bg-danger">RPN 216</span></li>
-            <li><span>Kualitas Benang</span> <span class="badge text-bg-warning">RPN 168</span></li>
-            <li><span>Kondisi Jarum</span> <span class="badge text-bg-warning">RPN 140</span></li>
-            <li><span>Faktor Operator</span> <span class="badge text-bg-secondary">RPN 96</span></li>
-          </ul>
+        <div class="chart-placeholder px-3 pb-3">
+          <canvas id="chartFMEA"></canvas>
         </div>
       </div>
     </div>
@@ -250,19 +235,12 @@
       <div class="panel h-100">
         <div class="panel-header">
           <div>
-            <h2 class="h5 mb-1 section-title"><i class="bi bi-sliders" aria-hidden="true"></i><span>Hasil Optimasi Taguchi</span></h2>
+            <h2 class="h5 mb-1 section-title"><i class="bi bi-sliders text-success" aria-hidden="true"></i><span>Hasil Optimasi Taguchi</span></h2>
             <p class="text-muted mb-0">Kombinasi parameter optimal hasil perhitungan rasio S/N.</p>
           </div>
         </div>
-
-        {{-- TODO: Ganti dengan Chart.js line/bar untuk visualisasi rasio S/N --}}
-        <div class="chart-placeholder">
-          <ul class="taguchi-list">
-            <li><span>Kecepatan Mesin</span> <span class="badge text-bg-success">Level 2</span></li>
-            <li><span>Tegangan Benang</span> <span class="badge text-bg-success">Level 1</span></li>
-            <li><span>Suhu Ruang Produksi</span> <span class="badge text-bg-success">Level 3</span></li>
-            <li><span>Rasio S/N Optimal</span> <span class="badge text-bg-primary">32,4 dB</span></li>
-          </ul>
+        <div class="chart-placeholder px-3 pb-3">
+            <canvas id="chartTaguchi"></canvas>
         </div>
       </div>
     </div>
@@ -312,3 +290,145 @@
   </section>
 
 @endsection
+
+@push('scripts')
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function () {
+    // Shared Chart Options for styling
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: {
+                display: false
+            }
+        }
+    };
+
+    // 1. Grafik Defect Berdasarkan Jenis Jaring (Bar Chart)
+    const ctxJenisJaring = document.getElementById('chartJenisJaring').getContext('2d');
+    new Chart(ctxJenisJaring, {
+        type: 'bar',
+        data: {
+            labels: ['Jaring A', 'Jaring B', 'Jaring C', 'Jaring D', 'Jaring E'],
+            datasets: [{
+                label: 'Jumlah Defect',
+                data: [42, 58, 72, 51, 35],
+                backgroundColor: 'rgba(13, 110, 253, 0.8)', // Primary blue
+                borderRadius: 4
+            }]
+        },
+        options: {
+            ...commonOptions,
+            scales: {
+                y: { beginAtZero: true }
+            }
+        }
+    });
+
+    // 2. Diagram Pareto (Combo: Bar + Line)
+    const ctxPareto = document.getElementById('chartPareto').getContext('2d');
+    new Chart(ctxPareto, {
+        type: 'bar',
+        data: {
+            labels: ['Sobek', 'Bolong', 'Simpul', 'Kotor', 'Lainnya'],
+            datasets: [
+                {
+                    type: 'line',
+                    label: 'Kumulatif %',
+                    data: [35, 65, 85, 95, 100],
+                    borderColor: 'rgba(220, 53, 69, 1)', // Danger red
+                    backgroundColor: 'rgba(220, 53, 69, 0.2)',
+                    borderWidth: 2,
+                    tension: 0.3,
+                    fill: false,
+                    yAxisID: 'y1'
+                },
+                {
+                    type: 'bar',
+                    label: 'Frekuensi',
+                    data: [83, 66, 48, 30, 18],
+                    backgroundColor: 'rgba(108, 117, 125, 0.7)', // Secondary gray
+                    borderRadius: 4,
+                    yAxisID: 'y'
+                }
+            ]
+        },
+        options: {
+            ...commonOptions,
+            scales: {
+                y: { 
+                    beginAtZero: true,
+                    title: { display: true, text: 'Frekuensi' }
+                },
+                y1: { 
+                    beginAtZero: true, 
+                    position: 'right', 
+                    max: 100,
+                    title: { display: true, text: 'Kumulatif %' },
+                    grid: { drawOnChartArea: false }
+                }
+            }
+        }
+    });
+
+    // 3. Prioritas Risiko FMEA (Horizontal Bar)
+    const ctxFMEA = document.getElementById('chartFMEA').getContext('2d');
+    new Chart(ctxFMEA, {
+        type: 'bar',
+        data: {
+            labels: ['Setting Mesin', 'Kualitas Benang', 'Kondisi Jarum', 'Faktor Operator'],
+            datasets: [{
+                label: 'Nilai RPN',
+                data: [216, 168, 140, 96],
+                backgroundColor: [
+                    'rgba(220, 53, 69, 0.8)', // Danger
+                    'rgba(255, 193, 7, 0.8)', // Warning
+                    'rgba(255, 193, 7, 0.8)',
+                    'rgba(108, 117, 125, 0.8)' // Secondary
+                ],
+                borderRadius: 4
+            }]
+        },
+        options: {
+            ...commonOptions,
+            indexAxis: 'y', // Horizontal
+            scales: {
+                x: { beginAtZero: true }
+            }
+        }
+    });
+
+    // 4. Hasil Optimasi Taguchi (Line Chart for S/N Ratio)
+    const ctxTaguchi = document.getElementById('chartTaguchi').getContext('2d');
+    new Chart(ctxTaguchi, {
+        type: 'line',
+        data: {
+            labels: ['Exp 1', 'Exp 2', 'Exp 3', 'Exp 4', 'Exp 5', 'Exp 6', 'Exp 7', 'Exp 8', 'Exp 9'],
+            datasets: [{
+                label: 'S/N Ratio (dB)',
+                data: [28.5, 30.1, 29.4, 31.0, 32.4, 30.8, 29.9, 31.5, 32.0],
+                borderColor: 'rgba(25, 135, 84, 1)', // Success green
+                backgroundColor: 'rgba(25, 135, 84, 0.1)',
+                borderWidth: 2,
+                tension: 0.4,
+                fill: true,
+                pointBackgroundColor: 'rgba(25, 135, 84, 1)',
+                pointRadius: 4,
+                pointHoverRadius: 6
+            }]
+        },
+        options: {
+            ...commonOptions,
+            scales: {
+                y: { 
+                    beginAtZero: false,
+                    title: { display: true, text: 'S/N Ratio (dB)' }
+                }
+            }
+        }
+    });
+});
+</script>
+@endpush

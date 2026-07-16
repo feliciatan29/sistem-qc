@@ -17,15 +17,17 @@ class PengaturanController extends Controller
 
     public function create()
     {
-        $dataproduksi = DataProduksi::all();
+        $jenisJaringList = DataProduksi::select('jenis_jaring')->distinct()->pluck('jenis_jaring');
+        $bulanProduksiList = DataProduksi::select('bulan_produksi')->distinct()->pluck('bulan_produksi');
 
-        return view('produksi.pengaturan_mesin.create', compact('dataproduksi'));
+        return view('produksi.pengaturan_mesin.create', compact('jenisJaringList', 'bulanProduksiList'));
     }
 
     public function store(Request $request)
     {
         $validated = $request->validate([
             'kode_mesin'   => 'required|string|max:255|unique:tbl_pengaturan,kode_mesin',
+            'bulan_produksi'=> 'required|string|max:255',
             'jenis_jaring' => 'required|string|max:255',
             'ukuran_jaring'=> 'required|string|max:255',
             'MD_jaring'    => 'required|numeric|min:0',
@@ -48,13 +50,16 @@ class PengaturanController extends Controller
     public function edit(PengaturanMesin $pengaturan_mesin)
     {
         $pengaturan = $pengaturan_mesin;
-        return view('produksi.pengaturan_mesin.edit', compact('pengaturan'));
+        $jenisJaringList = DataProduksi::select('jenis_jaring')->distinct()->pluck('jenis_jaring');
+        $bulanProduksiList = DataProduksi::select('bulan_produksi')->distinct()->pluck('bulan_produksi');
+        return view('produksi.pengaturan_mesin.edit', compact('pengaturan', 'jenisJaringList', 'bulanProduksiList'));
     }
 
     public function update(Request $request, PengaturanMesin $pengaturan_mesin)
     {
         $validated = $request->validate([
             'kode_mesin'   => 'required|string|max:255|unique:tbl_pengaturan,kode_mesin,' . $pengaturan_mesin->id,
+            'bulan_produksi'=> 'required|string|max:255',
             'jenis_jaring' => 'required|string|max:255',
             'ukuran_jaring'=> 'required|string|max:255',
             'MD_jaring'    => 'required|numeric|min:0',

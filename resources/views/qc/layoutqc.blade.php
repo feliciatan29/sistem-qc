@@ -28,10 +28,10 @@
         <aside class="admin-sidebar" id="adminSidebar" aria-label="Main navigation">
             <div class="sidebar-header">
                 <a class="brand-mark" href="{{ route('qc.dashboard') }}" aria-label="Dashboard Quality Control">
-                    <span class="brand-icon"><i class="bi bi-shield-check" aria-hidden="true"></i></span>
+                    <span class="brand-icon"><i class="bi bi-gear-wide-connected" aria-hidden="true"></i></span>
                     <span class="brand-copy">
-                        <span class="brand-title">QC System</span>
-                        <span class="brand-subtitle">Quality Control</span>
+                        <span class="brand-title">SIMKAJAR</span>
+                        <span class="brand-subtitle">PT Arteria Daya Mulia</span>
                     </span>
                 </a>
             </div>
@@ -42,20 +42,20 @@
                     <span class="nav-icon"><i class="bi bi-speedometer2" aria-hidden="true"></i></span>
                     <span class="nav-text">Dashboard</span>
                 </a>
-                <a class="nav-link" href="#">
+                <a class="nav-link {{ request()->routeIs('qc.pemeriksaan.*') ? 'active' : '' }}" href="{{ route('qc.pemeriksaan.index') }}">
                     <span class="nav-icon"><i class="bi bi-clipboard2-check" aria-hidden="true"></i></span>
                     <span class="nav-text">Data Pemeriksaan QC</span>
                 </a>
-                <a class="nav-link" href="#">
+                <a class="nav-link {{ request()->routeIs('qc.defect.summary') ? 'active' : '' }}" href="{{ route('qc.defect.summary') }}">
                     <span class="nav-icon"><i class="bi bi-exclamation-circle" aria-hidden="true"></i></span>
                     <span class="nav-text">Data Defect</span>
                 </a>
-                <a class="nav-link" href="#">
+                <a class="nav-link {{ request()->routeIs('qc.analisis.pareto') ? 'active' : '' }}" href="{{ route('qc.analisis.pareto') }}">
                     <span class="nav-icon"><i class="bi bi-bar-chart-steps" aria-hidden="true"></i></span>
                     <span class="nav-text">Analisis Pareto</span>
                 </a>
-                <a class="nav-link" href="#">
-                    <span class="nav-icon"><i class="bi bi-diagram-3" aria-hidden="true"></i></span>
+                <a class="nav-link {{ request()->routeIs('qc.fmea.index') ? 'active' : '' }}" href="{{ route('qc.fmea.index') }}">
+                    <span class="nav-icon"><i class="bi bi-shield-exclamation" aria-hidden="true"></i></span>
                     <span class="nav-text">Analisis FMEA</span>
                 </a>
                 <a class="nav-link" href="#">
@@ -76,12 +76,6 @@
                 </a>
             </nav>
 
-            <div class="sidebar-user">
-                <img class="avatar-img avatar-md sidebar-user-avatar"
-                    src="{{ asset('images/avatar/avatar.jpg') }}" alt="Admin QC">
-                <strong>Admin QC</strong>
-                <small>Quality Control Workspace</small>
-            </div>
 
             <div class="sidebar-footer">
                 <span class="status-dot"></span>
@@ -137,8 +131,7 @@
                         <div class="dropdown">
                             <button class="profile-button dropdown-toggle" type="button" data-bs-toggle="dropdown"
                                 aria-expanded="false">
-                                <img class="avatar-img avatar-sm" src="{{ asset('images/avatar/avatar.jpg') }}"
-                                    alt="Admin QC">
+                                <i class="bi bi-person-circle me-2 fs-5"></i>
                                 <span class="profile-name d-none d-sm-inline">Admin QC</span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
