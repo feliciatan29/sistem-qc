@@ -8,38 +8,95 @@ use App\Models\Fmea;
 
 class FmeaController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        // Get total defects for Mono
-        $mono = DB::table('tbl_pemeriksaanqc')
+        $tahun = $request->input('tahun', '');
+
+        // 1. Get total defects for Mono (Overall)
+        $monoOverall = DB::table('tbl_pemeriksaanqc')
             ->selectRaw('SUM(rr) as rr, SUM(pr) as pr, SUM(rps) as rps, SUM(`super`) as `super`, SUM(rj) as rj')
             ->where('jenis_jaring', 'like', '%Mono%')
             ->first();
 
-        // Get total defects for Multi
-        $multi = DB::table('tbl_pemeriksaanqc')
+        // 2. Get total defects for Multi (Overall)
+        $multiOverall = DB::table('tbl_pemeriksaanqc')
             ->selectRaw('SUM(rr) as rr, SUM(pr) as pr, SUM(rps) as rps, SUM(rj) as rj, SUM(berbulu) as berbulu, SUM(rusak_blok) as rusak_blok')
             ->where('jenis_jaring', 'like', '%Multi%')
             ->first();
 
-        $monoData = $this->processFmeaData('Monofilament', [
-            'RR' => $mono->rr ?? 0,
-            'PR' => $mono->pr ?? 0,
-            'RPS' => $mono->rps ?? 0,
-            'SUPER' => $mono->super ?? 0,
-            'RJ' => $mono->rj ?? 0,
+        $monoDataOverall = $this->processFmeaData('Monofilament', [
+            'RR' => $monoOverall->rr ?? 0,
+            'PR' => $monoOverall->pr ?? 0,
+            'RPS' => $monoOverall->rps ?? 0,
+            'SUPER' => $monoOverall->super ?? 0,
+            'RJ' => $monoOverall->rj ?? 0,
         ]);
 
-        $multiData = $this->processFmeaData('Multifilament', [
-            'RR' => $multi->rr ?? 0,
-            'PR' => $multi->pr ?? 0,
-            'RPS' => $multi->rps ?? 0,
-            'RJ' => $multi->rj ?? 0,
-            'Berbulu' => $multi->berbulu ?? 0,
-            'Rusak Blok' => $multi->rusak_blok ?? 0,
+        $multiDataOverall = $this->processFmeaData('Multifilament', [
+            'RR' => $multiOverall->rr ?? 0,
+            'PR' => $multiOverall->pr ?? 0,
+            'RPS' => $multiOverall->rps ?? 0,
+            'RJ' => $multiOverall->rj ?? 0,
+            'Berbulu' => $multiOverall->berbulu ?? 0,
+            'Rusak Blok' => $multiOverall->rusak_blok ?? 0,
         ]);
 
-        return view('qc.fmea.index', compact('monoData', 'multiData'));
+        $monoDataFiltered = null;
+        $multiDataFiltered = null;
+
+        if ($tahun != '') {
+            $monoFiltered = DB::table('tbl_pemeriksaanqc')
+                ->selectRaw('SUM(rr) as rr, SUM(pr) as pr, SUM(rps) as rps, SUM(`super`) as `super`, SUM(rj) as rj')
+                ->where('jenis_jaring', 'like', '%Mono%')
+                ->where('bulan_produksi', 'like', $tahun . '%')
+                ->first();
+
+            $multiFiltered = DB::table('tbl_pemeriksaanqc')
+                ->selectRaw('SUM(rr) as rr, SUM(pr) as pr, SUM(rps) as rps, SUM(rj) as rj, SUM(berbulu) as berbulu, SUM(rusak_blok) as rusak_blok')
+                ->where('jenis_jaring', 'like', '%Multi%')
+                ->where('bulan_produksi', 'like', $tahun . '%')
+                ->first();
+
+            $monoDataFiltered = $this->processFmeaData('Monofilament', [
+                'RR' => $monoFiltered->rr ?? 0,
+                'PR' => $monoFiltered->pr ?? 0,
+                'RPS' => $monoFiltered->rps ?? 0,
+                'SUPER' => $monoFiltered->super ?? 0,
+                'RJ' => $monoFiltered->rj ?? 0,
+            ]);
+
+            $multiDataFiltered = $this->processFmeaData('Multifilament', [
+                'RR' => $multiFiltered->rr ?? 0,
+                'PR' => $multiFiltered->pr ?? 0,
+                'RPS' => $multiFiltered->rps ?? 0,
+                'RJ' => $multiFiltered->rj ?? 0,
+                'Berbulu' => $multiFiltered->berbulu ?? 0,
+                'Rusak Blok' => $multiFiltered->rusak_blok ?? 0,
+            ]);
+        }
+
+        // Available years
+        $availablePeriods = DB::table('tbl_pemeriksaanqc')
+            ->whereNotNull('bulan_produksi')
+            ->where('bulan_produksi', '!=', '')
+            ->select('bulan_produksi')
+            ->distinct()
+            ->orderByDesc('bulan_produksi')
+            ->pluck('bulan_produksi');
+
+        $availableYears = [];
+        foreach ($availablePeriods as $p) {
+            $y = substr($p, 0, 4);
+            if (!in_array($y, $availableYears)) {
+                $availableYears[] = $y;
+            }
+        }
+        
+        if (!in_array('2025', $availableYears)) $availableYears[] = '2025';
+        if (!in_array('2026', $availableYears)) $availableYears[] = '2026';
+        rsort($availableYears);
+
+        return view('qc.fmea.index', compact('monoDataOverall', 'multiDataOverall', 'monoDataFiltered', 'multiDataFiltered', 'tahun', 'availableYears'));
     }
 
     private function processFmeaData($jenisJaring, $defects)

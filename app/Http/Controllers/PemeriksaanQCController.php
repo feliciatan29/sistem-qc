@@ -8,10 +8,25 @@ use Illuminate\Http\Request;
 
 class PemeriksaanQCController extends Controller
 {
-    public function index()
+    public function index(Request $request)
     {
-        $pemeriksaan = PemeriksaanQC::with('produksi')->latest()->paginate(10);
-        return view('qc.pemeriksaan_qc.index', compact('pemeriksaan'));
+        $query = PemeriksaanQC::with('produksi')->latest();
+
+        if ($request->has('tahun') && $request->tahun != '') {
+            $query->whereYear('bulan_produksi', $request->tahun);
+        }
+
+        if ($request->has('bulan') && $request->bulan != '') {
+            $query->whereMonth('bulan_produksi', $request->bulan);
+        }
+
+        $pemeriksaan = $query->paginate(10)->withQueryString();
+        
+        $totalCek = $query->sum('jumlah_cek');
+        $totalBaik = $query->sum('baik');
+        $totalDefect = $query->sum('total_defect');
+
+        return view('qc.pemeriksaan_qc.index', compact('pemeriksaan', 'totalCek', 'totalBaik', 'totalDefect'));
     }
 
     public function create()
@@ -43,14 +58,18 @@ class PemeriksaanQCController extends Controller
             return back()->withErrors(['jumlah_cek' => 'Jumlah Cek tidak boleh melebihi Jumlah Pesanan.'])->withInput();
         }
 
-        // Hitung Total Defect berdasarkan Jenis Jaring
-        $isMono = stripos($produksi->jenis_jaring, 'Mono') !== false;
-        if ($isMono) {
-            $total_defect = $request->rr + $request->pr + $request->rps + $request->super + $request->rj;
-        } else {
-            $total_defect = $request->rr + $request->pr + $request->rps + $request->berbulu + $request->rusak_blok + $request->rj;
+        // Validasi jumlah baik tidak melebihi jumlah cek (sisanya adalah jaring rusak)
+        if ($request->baik > $request->jumlah_cek) {
+            return back()->withErrors(['baik' => 'Jumlah Baik pengecekan tidak boleh melebihi Jumlah Cek untuk jaring yang masuk kategori rusak.'])->withInput();
         }
 
+        // Hitung Total Defect dengan menjumlahkan semua kategori
+        $total_defect = $request->rr + $request->pr + $request->rps + $request->super + $request->rj + $request->berbulu + $request->rusak_blok;
+
+        // Validasi data kerusakan tidak melebihi jumlah cek
+        if ($total_defect > $request->jumlah_cek) {
+            return back()->withErrors(['total_defect' => 'Data Kerusakan (Total Defect) tidak boleh melebihi Jumlah Cek.'])->withInput();
+        }
 
         PemeriksaanQC::create([
             'id_produksi' => $request->id_produksi,
@@ -110,14 +129,18 @@ class PemeriksaanQCController extends Controller
             return back()->withErrors(['jumlah_cek' => 'Jumlah Cek tidak boleh melebihi Jumlah Pesanan.'])->withInput();
         }
 
-        // Hitung Total Defect berdasarkan Jenis Jaring
-        $isMono = stripos($produksi->jenis_jaring, 'Mono') !== false;
-        if ($isMono) {
-            $total_defect = $request->rr + $request->pr + $request->rps + $request->super + $request->rj;
-        } else {
-            $total_defect = $request->rr + $request->pr + $request->rps + $request->berbulu + $request->rusak_blok + $request->rj;
+        // Validasi jumlah baik tidak melebihi jumlah cek (sisanya adalah jaring rusak)
+        if ($request->baik > $request->jumlah_cek) {
+            return back()->withErrors(['baik' => 'Jumlah Baik pengecekan tidak boleh melebihi Jumlah Cek untuk jaring yang masuk kategori rusak.'])->withInput();
         }
 
+        // Hitung Total Defect dengan menjumlahkan semua kategori
+        $total_defect = $request->rr + $request->pr + $request->rps + $request->super + $request->rj + $request->berbulu + $request->rusak_blok;
+
+        // Validasi data kerusakan tidak melebihi jumlah cek
+        if ($total_defect > $request->jumlah_cek) {
+            return back()->withErrors(['total_defect' => 'Data Kerusakan (Total Defect) tidak boleh melebihi Jumlah Cek.'])->withInput();
+        }
 
         $pemeriksaan->update([
             'id_produksi' => $request->id_produksi,

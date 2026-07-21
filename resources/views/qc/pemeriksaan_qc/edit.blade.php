@@ -220,17 +220,54 @@
             const rusak_blok = parseInt(document.getElementById('rusak_blok').value) || 0;
             
             const jumlah_cek = parseInt(jumlahCekInput.value) || 0;
-            const jenis_jaring = document.getElementById('jenis_jaring').value.toLowerCase();
-            const isMono = jenis_jaring.includes('mono');
 
-            let totalDefect = 0;
-            if (isMono) {
-                totalDefect = rr + pr + rps + superVal + rj;
-            } else {
-                totalDefect = rr + pr + rps + berbulu + rusak_blok + rj;
-            }
+            const totalDefect = rr + pr + rps + superVal + rj + berbulu + rusak_blok;
 
             document.getElementById('total_defect').value = totalDefect;
+
+            // Validasi jumlah baik <= jumlah cek & total defect <= jumlah cek
+            const baikInput = document.getElementById('baik');
+            const btnSubmit = document.getElementById('btn-submit');
+            let errorDiv = document.getElementById('baik-js-error');
+            let defectErrorDiv = document.getElementById('defect-js-error');
+            
+            let isValid = true;
+
+            if (baik > jumlah_cek) {
+                baikInput.classList.add('is-invalid');
+                if (!errorDiv) {
+                    errorDiv = document.createElement('div');
+                    errorDiv.className = 'invalid-feedback d-block';
+                    errorDiv.id = 'baik-js-error';
+                    errorDiv.innerText = 'Jumlah Baik tidak boleh melebihi Jumlah Cek.';
+                    baikInput.parentNode.appendChild(errorDiv);
+                }
+                isValid = false;
+            } else {
+                baikInput.classList.remove('is-invalid');
+                if (errorDiv) {
+                    errorDiv.remove();
+                }
+            }
+
+            if (totalDefect > jumlah_cek) {
+                document.getElementById('total_defect').classList.add('is-invalid');
+                if (!defectErrorDiv) {
+                    defectErrorDiv = document.createElement('div');
+                    defectErrorDiv.className = 'invalid-feedback d-block text-danger mt-2';
+                    defectErrorDiv.id = 'defect-js-error';
+                    defectErrorDiv.innerText = 'Data Kerusakan (Total Defect) tidak boleh melebihi Jumlah Cek.';
+                    document.getElementById('total_defect').parentNode.appendChild(defectErrorDiv);
+                }
+                isValid = false;
+            } else {
+                document.getElementById('total_defect').classList.remove('is-invalid');
+                if (defectErrorDiv) {
+                    defectErrorDiv.remove();
+                }
+            }
+
+            btnSubmit.disabled = !isValid;
         }
 
         defectInputs.forEach(input => {

@@ -58,11 +58,11 @@
                     <span class="nav-icon"><i class="bi bi-shield-exclamation" aria-hidden="true"></i></span>
                     <span class="nav-text">Analisis FMEA</span>
                 </a>
-                <a class="nav-link" href="#">
+                <a class="nav-link {{ request()->routeIs('qc.taguchi.index') ? 'active' : '' }}" href="{{ route('qc.taguchi.index') }}">
                     <span class="nav-icon"><i class="bi bi-sliders" aria-hidden="true"></i></span>
                     <span class="nav-text">Optimasi Taguchi</span>
                 </a>
-                <a class="nav-link" href="#">
+                <a class="nav-link {{ request()->routeIs('qc.qlf.*') ? 'active' : '' }}" href="{{ route('qc.qlf.index') }}">
                     <span class="nav-icon"><i class="bi bi-cash-stack" aria-hidden="true"></i></span>
                     <span class="nav-text">Estimasi Kerugian</span>
                 </a>
@@ -70,10 +70,13 @@
                     <span class="nav-icon"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span>
                     <span class="nav-text">Laporan</span>
                 </a>
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                     <span class="nav-icon"><i class="bi bi-box-arrow-right" aria-hidden="true"></i></span>
                     <span class="nav-text">Logout</span>
                 </a>
+                <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
+                    @csrf
+                </form>
             </nav>
 
 
@@ -132,15 +135,29 @@
                             <button class="profile-button dropdown-toggle" type="button" data-bs-toggle="dropdown"
                                 aria-expanded="false">
                                 <i class="bi bi-person-circle me-2 fs-5"></i>
-                                <span class="profile-name d-none d-sm-inline">Admin QC</span>
+                                <span class="profile-name d-none d-sm-inline">
+                                    @if(auth()->check())
+                                        {{ auth()->user()->role === 'admin_produksi' ? 'Admin Produksi' : 'Admin QC' }}
+                                    @else
+                                        Admin
+                                    @endif
+                                </span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#">Profil</a></li>
-                                <li><a class="dropdown-item" href="#">Pengaturan Akun</a></li>
                                 <li>
-                                    <hr class="dropdown-divider">
+                                    <div class="dropdown-item d-flex flex-column" style="background: none; pointer-events: none;">
+                                        <span class="fw-bold">
+                                            @if(auth()->check())
+                                                {{ auth()->user()->role === 'admin_produksi' ? 'Admin Produksi' : 'Admin QC' }}
+                                            @else
+                                                Admin
+                                            @endif
+                                        </span>
+                                    </div>
                                 </li>
-                                <li><a class="dropdown-item" href="#">Keluar</a></li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profil</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Pengaturan</a></li>
                             </ul>
                         </div>
                     </div>

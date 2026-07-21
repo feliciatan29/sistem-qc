@@ -49,10 +49,13 @@
                     <span class="nav-icon"><i class="bi bi-sliders" aria-hidden="true"></i></span>
                     <span class="nav-text">Pengaturan Mesin</span>
                 </a>
-                <a class="nav-link" href="#">
+                <a class="nav-link" href="#" onclick="event.preventDefault(); document.getElementById('logout-form-sidebar').submit();">
                     <span class="nav-icon"><i class="bi bi-box-arrow-right" aria-hidden="true"></i></span>
                     <span class="nav-text">Logout</span>
                 </a>
+                <form id="logout-form-sidebar" action="{{ route('logout') }}" method="POST" class="d-none">
+                    @csrf
+                </form>
             </nav>
 
             <div class="sidebar-footer">
@@ -111,27 +114,28 @@
                                 aria-expanded="false">
                                 <i class="bi bi-person-circle me-2 fs-5"></i>
                                 <span class="profile-name d-none d-sm-inline">
-                                    @auth
-                                        {{ Auth::user()->name }}
+                                    @if(auth()->check())
+                                        {{ auth()->user()->role === 'admin_produksi' ? 'Admin Produksi' : 'Admin QC' }}
                                     @else
-                                        Admin Produksi
-                                    @endauth
+                                        Admin
+                                    @endif
                                 </span>
                             </button>
                             <ul class="dropdown-menu dropdown-menu-end">
-                                <li><a class="dropdown-item" href="#">Profil</a></li>
-                                <li><a class="dropdown-item" href="#">Pengaturan Akun</a></li>
                                 <li>
-                                    <hr class="dropdown-divider">
+                                    <div class="dropdown-item d-flex flex-column" style="background: none; pointer-events: none;">
+                                        <span class="fw-bold">
+                                            @if(auth()->check())
+                                                {{ auth()->user()->role === 'admin_produksi' ? 'Admin Produksi' : 'Admin QC' }}
+                                            @else
+                                                Admin
+                                            @endif
+                                        </span>
+                                    </div>
                                 </li>
-                                <li>
-                                    @auth
-                                        <form method="POST" action="{{ route('logout') }}">
-                                            @csrf
-                                            <button type="submit" class="dropdown-item">Logout</button>
-                                        </form>
-                                    @endauth
-                                </li>
+                                <li><hr class="dropdown-divider"></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-person me-2"></i>Profil</a></li>
+                                <li><a class="dropdown-item" href="#"><i class="bi bi-gear me-2"></i>Pengaturan</a></li>
                             </ul>
                         </div>
                     </div>

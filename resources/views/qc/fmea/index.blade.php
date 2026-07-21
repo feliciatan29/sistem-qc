@@ -65,6 +65,137 @@
     </div>
 @endif
 
+<!-- Filter Card -->
+<div class="card border-0 shadow-sm mb-4">
+    <div class="card-body">
+        <form action="{{ route('qc.fmea.index') }}" method="GET" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label for="tahun" class="form-label fw-bold">Filter Tahun Produksi</label>
+                <select name="tahun" id="tahun" class="form-select">
+                    <option value="">-- Semua Tahun --</option>
+                    @foreach($availableYears as $y)
+                        <option value="{{ $y }}" {{ request('tahun') == $y ? 'selected' : '' }}>Tahun {{ $y }}</option>
+                    @endforeach
+                </select>
+            </div>
+            <div class="col-md-4">
+                <button type="submit" class="btn btn-primary px-4">
+                    <i class="bi bi-filter me-2"></i> Terapkan Filter
+                </button>
+                @if(request('tahun'))
+                    <a href="{{ route('qc.fmea.index') }}" class="btn btn-light ms-2">Reset</a>
+                @endif
+            </div>
+        </form>
+    </div>
+</div>
+
+@if($tahun != '')
+<div class="alert alert-info border-0 shadow-sm mb-4">
+    <i class="bi bi-info-circle-fill me-2"></i> Menampilkan Data Filter Untuk Tahun: <strong>{{ $tahun }}</strong> (Nilai S, O, D dan RPN menyesuaikan dari penilaian utama).
+</div>
+
+<!-- DATA FILTERED -->
+<div class="row mb-4">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm border-top border-info border-3">
+            <div class="card-header bg-white border-bottom p-3">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-grid-3x3 text-info me-2"></i> Hasil Filter FMEA - Monofilament (Tahun {{ $tahun }})</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-fmea mb-0">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" class="text-start ps-4">Kategori Defect</th>
+                            <th rowspan="2">Total Defect (Pcs)</th>
+                            <th rowspan="2">Kontribusi (%)</th>
+                            <th colspan="3">Penilaian Risiko</th>
+                            <th rowspan="2">RPN (S×O×D)</th>
+                            <th rowspan="2">Ranking</th>
+                        </tr>
+                        <tr>
+                            <th>Severity (S)</th>
+                            <th>Occurrence (O)</th>
+                            <th>Detection (D)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($monoDataFiltered as $item)
+                            <tr>
+                                <td class="fw-bold ps-4 text-dark">{{ $item->kategori }}</td>
+                                <td class="text-center">{{ number_format($item->total_pcs) }}</td>
+                                <td class="text-center fw-semibold text-primary">{{ number_format($item->kontribusi, 2) }}%</td>
+                                <td class="text-center bg-light">{{ $item->severity }}</td>
+                                <td class="text-center bg-light">{{ $item->occurrence }}</td>
+                                <td class="text-center bg-light">{{ $item->detection }}</td>
+                                <td class="text-center fw-bold text-danger fs-5">{{ $item->rpn }}</td>
+                                <td class="text-center">
+                                    <span class="{{ $item->ranking == 1 ? 'rank-1' : ($item->ranking == 2 ? 'rank-2' : ($item->ranking == 3 ? 'rank-3' : 'fw-bold text-secondary')) }}">
+                                        #{{ $item->ranking }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="row mb-5">
+    <div class="col-12">
+        <div class="card border-0 shadow-sm border-top border-info border-3">
+            <div class="card-header bg-white border-bottom p-3">
+                <h5 class="mb-0 fw-bold"><i class="bi bi-grid-3x3-gap text-info me-2"></i> Hasil Filter FMEA - Multifilament (Tahun {{ $tahun }})</h5>
+            </div>
+            <div class="table-responsive">
+                <table class="table table-bordered table-fmea mb-0">
+                    <thead>
+                        <tr>
+                            <th rowspan="2" class="text-start ps-4">Kategori Defect</th>
+                            <th rowspan="2">Total Defect (Pcs)</th>
+                            <th rowspan="2">Kontribusi (%)</th>
+                            <th colspan="3">Penilaian Risiko</th>
+                            <th rowspan="2">RPN (S×O×D)</th>
+                            <th rowspan="2">Ranking</th>
+                        </tr>
+                        <tr>
+                            <th>Severity (S)</th>
+                            <th>Occurrence (O)</th>
+                            <th>Detection (D)</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach($multiDataFiltered as $item)
+                            <tr>
+                                <td class="fw-bold ps-4 text-dark">{{ $item->kategori }}</td>
+                                <td class="text-center">{{ number_format($item->total_pcs) }}</td>
+                                <td class="text-center fw-semibold text-primary">{{ number_format($item->kontribusi, 2) }}%</td>
+                                <td class="text-center bg-light">{{ $item->severity }}</td>
+                                <td class="text-center bg-light">{{ $item->occurrence }}</td>
+                                <td class="text-center bg-light">{{ $item->detection }}</td>
+                                <td class="text-center fw-bold text-danger fs-5">{{ $item->rpn }}</td>
+                                <td class="text-center">
+                                    <span class="{{ $item->ranking == 1 ? 'rank-1' : ($item->ranking == 2 ? 'rank-2' : ($item->ranking == 3 ? 'rank-3' : 'fw-bold text-secondary')) }}">
+                                        #{{ $item->ranking }}
+                                    </span>
+                                </td>
+                            </tr>
+                        @endforeach
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+@endif
+
+<!-- DATA OVERALL -->
+<div class="alert alert-secondary border-0 shadow-sm mb-4">
+    <i class="bi bi-database me-2"></i> <strong>Data Analisis Keseluruhan (Semua Tahun)</strong> - Input penilaian S, O, D dapat disesuaikan di tabel ini.
+</div>
+
 <form action="{{ route('qc.fmea.update') }}" method="POST">
     @csrf
 
@@ -72,7 +203,7 @@
         <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-grid-3x3 text-primary me-2"></i> Analisis FMEA - Jaring Monofilament</h5>
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-grid-3x3 text-primary me-2"></i> Analisis FMEA Keseluruhan - Monofilament</h5>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-bordered table-fmea mb-0">
@@ -92,7 +223,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($monoData as $item)
+                            @foreach($monoDataOverall as $item)
                                 <tr>
                                     <td class="fw-bold ps-4 text-dark">{{ $item->kategori }}</td>
                                     <td class="text-center">{{ number_format($item->total_pcs) }}</td>
@@ -125,7 +256,7 @@
         <div class="col-12">
             <div class="card border-0 shadow-sm">
                 <div class="card-header bg-white border-bottom p-3 d-flex justify-content-between align-items-center">
-                    <h5 class="mb-0 fw-bold"><i class="bi bi-grid-3x3-gap text-indigo me-2"></i> Analisis FMEA - Jaring Multifilament</h5>
+                    <h5 class="mb-0 fw-bold"><i class="bi bi-grid-3x3-gap text-indigo me-2"></i> Analisis FMEA Keseluruhan - Multifilament</h5>
                 </div>
                 <div class="table-responsive">
                     <table class="table table-bordered table-fmea mb-0">
@@ -145,7 +276,7 @@
                             </tr>
                         </thead>
                         <tbody>
-                            @foreach($multiData as $item)
+                            @foreach($multiDataOverall as $item)
                                 <tr>
                                     <td class="fw-bold ps-4 text-dark">{{ $item->kategori }}</td>
                                     <td class="text-center">{{ number_format($item->total_pcs) }}</td>
@@ -201,5 +332,4 @@
         </div>
     </div>
 </div>
-
 @endsection

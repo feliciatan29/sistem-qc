@@ -102,9 +102,29 @@
             </h2>
         </div>
         <div class="d-flex align-items-center flex-wrap gap-2">
-            <input class="form-control table-search" style="width:260px;" type="search" placeholder="🔍 Cari Data..." data-table-search="qcTable">
-            <a href="{{ route('qc.pemeriksaan.create') }}" class="btn btn-primary d-flex align-items-center shadow-sm">
-                <i class="bi bi-plus-circle me-2"></i> Tambah Data
+            <form action="{{ route('qc.pemeriksaan.index') }}" method="GET" class="d-flex gap-2 align-items-center">
+                <select name="bulan" class="form-select table-search" style="width: 130px;">
+                    <option value="">Semua Bulan</option>
+                    @for($m = 1; $m <= 12; $m++)
+                        <option value="{{ sprintf('%02d', $m) }}" {{ request('bulan') == sprintf('%02d', $m) ? 'selected' : '' }}>
+                            {{ \Carbon\Carbon::create()->month($m)->translatedFormat('F') }}
+                        </option>
+                    @endfor
+                </select>
+                <select name="tahun" class="form-select table-search" style="width: 120px;">
+                    <option value="">Semua Tahun</option>
+                    @php $currentYear = date('Y'); @endphp
+                    @for($y = $currentYear; $y >= $currentYear - 5; $y--)
+                        <option value="{{ $y }}" {{ request('tahun') == $y ? 'selected' : '' }}>{{ $y }}</option>
+                    @endfor
+                </select>
+                <button type="submit" class="btn btn-secondary d-flex align-items-center shadow-sm" style="height: 38px;">
+                    <i class="bi bi-filter"></i>
+                </button>
+            </form>
+            <input class="form-control table-search" style="width:200px;" type="search" placeholder="🔍 Cari Data..." data-table-search="qcTable">
+            <a href="{{ route('qc.pemeriksaan.create') }}" class="btn btn-primary d-flex align-items-center shadow-sm" style="height: 38px;">
+                <i class="bi bi-plus-circle me-1"></i> Tambah
             </a>
         </div>
     </div>
@@ -126,6 +146,7 @@
                     <th>Jenis Jaring</th>
                     <th class="text-center">Pesanan (PCS)</th>
                     <th class="text-center">Cek (PCS)</th>
+                    <th class="text-center">Sisa (Tidak Dicek)</th>
                     <th class="text-center">Baik</th>
                     <th class="text-center">RR</th>
                     <th class="text-center">PR</th>
@@ -147,6 +168,7 @@
                         <td><span class="jenis-jaring-badge">{{ $item->jenis_jaring }}</span></td>
                         <td class="text-center"><span class="jumlah-badge">{{ number_format((int)$item->jumlah_pesanan) }}</span></td>
                         <td class="text-center fw-bold">{{ number_format($item->jumlah_cek) }}</td>
+                        <td class="text-center text-muted">{{ number_format((int)$item->jumlah_pesanan - $item->jumlah_cek) }}</td>
                         <td class="text-center text-success fw-bold">{{ $item->baik }}</td>
                         <td class="text-center">{{ $item->rr }}</td>
                         <td class="text-center">{{ $item->pr }}</td>
@@ -186,6 +208,17 @@
                     </tr>
                 @endforelse
             </tbody>
+            <tfoot>
+                <tr class="table-light fw-bold">
+                    <td colspan="4" class="text-end">Total Keseluruhan:</td>
+                    <td class="text-center">{{ number_format($totalCek) }}</td>
+                    <td></td>
+                    <td class="text-center text-success">{{ number_format($totalBaik) }}</td>
+                    <td colspan="7"></td>
+                    <td class="text-center text-danger">{{ number_format($totalDefect) }}</td>
+                    <td colspan="2"></td>
+                </tr>
+            </tfoot>
         </table>
     </div>
 
