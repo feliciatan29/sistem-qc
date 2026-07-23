@@ -24,7 +24,7 @@
     .stat-sub    { font-size: .8rem; color: #64748b; margin-top: .15rem; }
 
     /* ── Table Styling ──────────────────────────────────── */
-    .qcc-table { table-layout: fixed; margin-bottom: 0 !important; }
+    .qcc-table { table-layout: auto; margin-bottom: 0 !important; }
     .qcc-table thead th {
         background: #f8fafc;
         color: #475569;
@@ -34,6 +34,7 @@
         letter-spacing: .08em;
         border-bottom: 2px solid #e2e8f0;
         padding: 1rem .75rem;
+        white-space: nowrap;
     }
     .qcc-table tbody td { padding: .85rem .75rem; vertical-align: middle; border-bottom: 1px solid #f1f5f9; }
     .qcc-table tbody tr:hover { background: #f8fafc; }
@@ -266,16 +267,16 @@
                 <table class="table qcc-table mb-0">
                     <thead>
                         <tr>
-                            <th style="width:60px" class="ps-3">Rank</th>
+                            <th class="ps-3">Rank</th>
                             <th>Kategori</th>
                             @if($isFiltered)
                             <th class="text-end">Pcs ({{ $filterLabel }})</th>
-                            <th style="width:145px">Persentase ({{ $filterLabel }})</th>
+                            <th style="min-width:120px;">Persentase ({{ $filterLabel }})</th>
                             <th class="text-end" style="background: #f8fafc; border-left: 1px solid #e2e8f0;">Pcs (All-Time)</th>
-                            <th style="width:145px; background: #f8fafc;">Persentase (All-Time)</th>
+                            <th style="background: #f8fafc; min-width:120px;">Persentase (All-Time)</th>
                             @else
                             <th class="text-end">Pcs</th>
-                            <th style="width:140px">Persentase</th>
+                            <th style="min-width:120px;">Persentase</th>
                             @endif
                         </tr>
                     </thead>

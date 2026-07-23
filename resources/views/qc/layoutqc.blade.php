@@ -66,10 +66,7 @@
                     <span class="nav-icon"><i class="bi bi-cash-stack" aria-hidden="true"></i></span>
                     <span class="nav-text">Estimasi Kerugian</span>
                 </a>
-                <a class="nav-link" href="#">
-                    <span class="nav-icon"><i class="bi bi-file-earmark-text" aria-hidden="true"></i></span>
-                    <span class="nav-text">Laporan</span>
-                </a>
+
                 <a class="nav-link" href="#" onclick="event.preventDefault(); document.getElementById('logout-form').submit();">
                     <span class="nav-icon"><i class="bi bi-box-arrow-right" aria-hidden="true"></i></span>
                     <span class="nav-text">Logout</span>

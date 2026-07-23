@@ -253,9 +253,9 @@
                                     Aktif
                                 </option>
 
-                                <option value="Nonaktif"
-                                    {{ old('status', $pengaturan->status) === 'Nonaktif' ? 'selected' : '' }}>
-                                    Nonaktif
+                                <option value="Data Selesai"
+                                    {{ old('status', $pengaturan->status) === 'Data Selesai' ? 'selected' : '' }}>
+                                    Data Selesai
                                 </option>
                             </select>
 

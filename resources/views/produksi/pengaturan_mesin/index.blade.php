@@ -216,10 +216,10 @@
                                 <i class="bi bi-check-circle-fill me-1"></i>{{ $item->status }}
                             </span>
 
-                        @elseif($item->status == 'Nonaktif')
+                        @elseif($item->status == 'Data Selesai')
 
                             <span class="badge bg-danger">
-                                <i class="bi bi-x-circle-fill me-1"></i>{{ $item->status }}
+                                <i class="bi bi-x-circle-fill me-1"></i>Data Selesai
                             </span>
 
                         @else

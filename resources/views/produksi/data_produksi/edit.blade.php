@@ -165,8 +165,8 @@
                                 <option value="Proses" {{ old('status', $produksi->status) === 'Proses' ? 'selected' : '' }}>
                                     Proses
                                 </option>
-                                <option value="Nonaktif" {{ old('status', $produksi->status) === 'Nonaktif' ? 'selected' : '' }}>
-                                    Nonaktif
+                                <option value="Data Selesai" {{ old('status', $produksi->status) === 'Data Selesai' ? 'selected' : '' }}>
+                                    Data Selesai
                                 </option>
                             </select>
                             @error('status')

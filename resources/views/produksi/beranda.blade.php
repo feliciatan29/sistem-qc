@@ -25,7 +25,7 @@
                         <span class="metric-label">Total Produksi</span>
                         <span class="metric-icon"><i class="bi bi-box-seam" aria-hidden="true"></i></span>
                     </div>
-                    <div class="metric-value">152</div>
+                    <div class="metric-value">{{ $totalProduksi }}</div>
                 </div>
             </article>
         </div>
@@ -37,7 +37,7 @@
                         <span class="metric-label">Produksi Selesai</span>
                         <span class="metric-icon"><i class="bi bi-check-circle" aria-hidden="true"></i></span>
                     </div>
-                    <div class="metric-value">130</div>
+                    <div class="metric-value">{{ $produksiSelesai }}</div>
                 </div>
             </article>
         </div>
@@ -49,7 +49,7 @@
                         <span class="metric-label">Pengaturan Mesin</span>
                         <span class="metric-icon"><i class="bi bi-gear-fill" aria-hidden="true"></i></span>
                     </div>
-                    <div class="metric-value">20</div>
+                    <div class="metric-value">{{ $totalPengaturan }}</div>
                 </div>
             </article>
         </div>
@@ -58,10 +58,10 @@
             <article class="metric-card metric-danger h-100 d-flex flex-column justify-content-between">
                 <div>
                     <div class="metric-top">
-                        <span class="metric-label">Kerusakan Mesin</span>
+                        <span class="metric-label">Total Defect (QC)</span>
                         <span class="metric-icon"><i class="bi bi-exclamation-triangle" aria-hidden="true"></i></span>
                     </div>
-                    <div class="metric-value">5</div>
+                    <div class="metric-value">{{ $totalDefect ?? 0 }}</div>
                 </div>
             </article>
         </div>
@@ -73,7 +73,7 @@
             <div class="panel h-100">
                 <div class="panel-header">
                     <div>
-                        <h2 class="h5 mb-1 section-title"><i class="bi bi-graph-up text-primary" aria-hidden="true"></i><span>Grafik Produksi per Bulan</span></h2>
+                        <h2 class="h5 mb-1 section-title"><i class="bi bi-graph-up text-primary" aria-hidden="true"></i><span>Grafik Jumlah Produksi Jaring</span></h2>
                     </div>
                 </div>
                 <div class="px-3 pb-3" style="min-height: 260px;">
@@ -116,24 +116,24 @@
                             </tr>
                         </thead>
                         <tbody>
+                            @forelse($recentProduksi as $rp)
                             <tr>
-                                <td class="fw-bold">P001</td>
-                                <td>Jaring PE</td>
-                                <td>Juni</td>
-                                <td><span class="badge bg-success">Selesai</span></td>
+                                <td class="fw-bold">P{{ str_pad($rp->id, 3, '0', STR_PAD_LEFT) }}</td>
+                                <td>{{ $rp->jenis_jaring }}</td>
+                                <td>{{ \Carbon\Carbon::parse($rp->bulan_produksi)->translatedFormat('F') }}</td>
+                                <td>
+                                    @if($rp->status == 'Data Selesai')
+                                        <span class="badge bg-danger">Data Selesai</span>
+                                    @elseif($rp->status == 'Proses')
+                                        <span class="badge bg-warning text-dark">Proses</span>
+                                    @else
+                                        <span class="badge bg-success">Aktif</span>
+                                    @endif
+                                </td>
                             </tr>
-                            <tr>
-                                <td class="fw-bold">P002</td>
-                                <td>Jaring HD</td>
-                                <td>Juni</td>
-                                <td><span class="badge bg-warning text-dark">Proses</span></td>
-                            </tr>
-                            <tr>
-                                <td class="fw-bold">P003</td>
-                                <td>Jaring Nylon</td>
-                                <td>Juli</td>
-                                <td><span class="badge bg-primary">Aktif</span></td>
-                            </tr>
+                            @empty
+                            <tr><td colspan="4" class="text-center text-muted">Belum ada data</td></tr>
+                            @endforelse
                         </tbody>
                     </table>
                 </div>
@@ -165,16 +165,12 @@
                 </div>
                 <div class="px-3 pb-3">
                     <div class="d-flex justify-content-between border-bottom py-2">
-                        <span>Mesin Aktif</span>
-                        <span class="fw-bold">18</span>
-                    </div>
-                    <div class="d-flex justify-content-between border-bottom py-2">
-                        <span>Tidak Aktif</span>
-                        <span class="fw-bold text-warning">2</span>
+                        <span>Pengaturan Tersimpan</span>
+                        <span class="fw-bold">{{ $totalPengaturan }}</span>
                     </div>
                     <div class="d-flex justify-content-between py-2">
-                        <span>Rusak</span>
-                        <span class="fw-bold text-danger">1</span>
+                        <span>Total Cek QC</span>
+                        <span class="fw-bold text-danger">{{ \App\Models\PemeriksaanQC::count() }}</span>
                     </div>
                 </div>
             </div>
@@ -189,24 +185,16 @@
     document.addEventListener('DOMContentLoaded', function () {
         const produksiChart = new Chart(
             document.getElementById('produksiChart'), {
-                type: 'line',
+                type: 'bar',
                 data: {
-                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun'],
-                    datasets: [{
-                        label: 'Produksi',
-                        data: [120, 150, 180, 160, 220, 250],
-                        borderColor: 'rgba(13, 110, 253, 1)',
-                        backgroundColor: 'rgba(13, 110, 253, 0.1)',
-                        fill: true,
-                        borderWidth: 3,
-                        tension: 0.4
-                    }]
+                    labels: {!! json_encode($months) !!},
+                    datasets: {!! json_encode($chartDatasets) !!}
                 },
                 options: {
                     responsive: true,
                     maintainAspectRatio: false,
                     plugins: {
-                        legend: { display: false }
+                        legend: { display: true }
                     }
                 }
             }
@@ -216,9 +204,13 @@
             document.getElementById('statusChart'), {
                 type: 'doughnut',
                 data: {
-                    labels: ['Selesai', 'Proses', 'Aktif'],
+                    labels: ['Data Selesai', 'Proses', 'Aktif'],
                     datasets: [{
-                        data: [65, 20, 15],
+                        data: [
+                            {{ $statusCounts['Data Selesai'] ?? 0 }},
+                            {{ $statusCounts['Proses'] ?? 0 }},
+                            {{ $statusCounts['Aktif'] ?? 0 }}
+                        ],
                         backgroundColor: [
                             'rgba(25, 135, 84, 0.8)',
                             'rgba(255, 193, 7, 0.8)',

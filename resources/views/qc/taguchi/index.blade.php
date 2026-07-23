@@ -36,6 +36,28 @@
             font-size: 0.8rem;
             font-weight: bold;
         }
+        @media print {
+            body * {
+                visibility: hidden;
+            }
+            #print-area, #print-area * {
+                visibility: visible;
+            }
+            #print-area {
+                position: absolute;
+                left: 0;
+                top: 0;
+                width: 100%;
+                margin: 0;
+                padding: 0;
+            }
+            .no-print {
+                display: none !important;
+            }
+            canvas {
+                max-width: 100% !important;
+            }
+        }
     </style>
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -104,18 +126,32 @@
     </div>
 @elseif(request('jenis_jaring'))
     
+    @if(isset($info_taguchi))
+    <div class="alert alert-warning border-0 shadow-sm mb-4 d-flex align-items-center">
+        <i class="bi bi-exclamation-triangle-fill fs-4 text-warning me-3"></i> 
+        <div>
+            <strong>Peringatan Sistem!</strong><br>
+            {{ $info_taguchi }}
+        </div>
+    </div>
+    @endif
+
     <div class="alert alert-info border-0 shadow-sm mb-4">
-        <h5 class="alert-heading fw-bold"><i class="bi bi-info-circle-fill me-2"></i>Informasi Defect Dominan</h5>
-        Sistem secara otomatis telah memproses Data Pemeriksaan QC untuk periode <strong>{{ $periodeText ?? 'terpilih' }}</strong>. Defect dominan (terbanyak) adalah <strong>{{ $kategoriName ?? '' }}</strong>. Seluruh analisis Taguchi L9 di bawah ini menggunakan data defect {{ $kategoriName ?? '' }} tersebut sebagai target optimasi (Smaller is Better).
+        <h5 class="alert-heading fw-bold"><i class="bi bi-info-circle-fill me-2"></i>Informasi Respon Taguchi</h5>
+        Sistem secara otomatis telah memproses Data Pemeriksaan QC untuk periode <strong>{{ $periodeText ?? 'terpilih' }}</strong>. Seluruh analisis Taguchi L9 di bawah ini menggunakan data <strong>Total Defect</strong> sebagai target optimasi (Smaller is Better).
     </div>
 
     <div class="text-end mb-3">
-        <button class="btn btn-success me-2" onclick="window.print()">
+        <button class="btn btn-success" onclick="exportToExcel()">
             <i class="bi bi-file-earmark-excel me-1"></i> Export Excel
         </button>
-        <button class="btn btn-danger" onclick="window.print()">
-            <i class="bi bi-file-earmark-pdf me-1"></i> Export PDF
-        </button>
+    </div>
+
+<div id="print-area">
+    <div class="d-none d-print-block mb-4 text-center">
+        <h3>Hasil Analisis Optimasi Taguchi L9</h3>
+        <p>Data Periode: {{ $periodeText ?? 'Terpilih' }}</p>
+        <hr>
     </div>
 
     <!-- 1. FAKTOR & LEVEL -->
@@ -176,13 +212,16 @@
                         <th rowspan="2">Eksperimen</th>
                         <th colspan="3">Kombinasi Faktor (Level)</th>
                         <th colspan="3">Nilai Aktual Parameter</th>
-                        <th colspan="2">Data Defect (Trial)</th>
+                        <th colspan="{{ $n_qc_per_exp }}">Data Defect (Y)</th>
+                        <th rowspan="2">Mean (Y)</th>
                         <th rowspan="2">S/N Ratio (dB)</th>
                     </tr>
                     <tr>
                         <th>A</th><th>B</th><th>C</th>
                         <th>A</th><th>B</th><th>C</th>
-                        <th>T1</th><th>T2</th>
+                        @for($i = 1; $i <= $n_qc_per_exp; $i++)
+                            <th>T{{ $i }}</th>
+                        @endfor
                     </tr>
                 </thead>
                 <tbody>
@@ -197,8 +236,13 @@
                             <td class="text-secondary">{{ $row['B_val'] }}</td>
                             <td class="text-secondary">{{ $row['C_val'] }}</td>
                             
-                            <td class="fw-semibold text-danger">{{ $row['trial1'] }}</td>
-                            <td class="fw-semibold text-danger">{{ $row['trial2'] }}</td>
+                            @foreach($row['trials'] as $trial)
+                                <td class="fw-semibold text-danger">{{ $trial }}</td>
+                            @endforeach
+                            @for($i = count($row['trials']); $i < $n_qc_per_exp; $i++)
+                                <td>-</td>
+                            @endfor
+                            <td class="fw-bold text-success">{{ number_format($row['mean_y'], 3) }}</td>
                             <td class="fw-bold text-primary">{{ number_format($row['sn'], 3) }}</td>
                         </tr>
                     @endforeach
@@ -264,14 +308,76 @@
             </div>
         </div>
 
-        <!-- 4. GRAFIK S/N -->
+        <!-- 3B. RESPONSE TABLE MEAN -->
         <div class="col-lg-6 mb-4">
+            <div class="card border-0 shadow-sm h-100 border-top border-info border-3">
+                <div class="card-header bg-white p-3">
+                    <h5 class="mb-0 fw-bold">3B. Response Table Mean</h5>
+                </div>
+                <div class="table-responsive">
+                    <table class="table table-bordered table-taguchi mb-0">
+                        <thead>
+                            <tr>
+                                <th>Level</th>
+                                <th>Faktor A</th>
+                                <th>Faktor B</th>
+                                <th>Faktor C</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Level 1</td>
+                                <td>{{ number_format($responseTableMean['A'][1], 3) }}</td>
+                                <td>{{ number_format($responseTableMean['B'][1], 3) }}</td>
+                                <td>{{ number_format($responseTableMean['C'][1], 3) }}</td>
+                            </tr>
+                            <tr>
+                                <td>Level 2</td>
+                                <td>{{ number_format($responseTableMean['A'][2], 3) }}</td>
+                                <td>{{ number_format($responseTableMean['B'][2], 3) }}</td>
+                                <td>{{ number_format($responseTableMean['C'][2], 3) }}</td>
+                            </tr>
+                            <tr>
+                                <td>Level 3</td>
+                                <td>{{ number_format($responseTableMean['A'][3], 3) }}</td>
+                                <td>{{ number_format($responseTableMean['B'][3], 3) }}</td>
+                                <td>{{ number_format($responseTableMean['C'][3], 3) }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="row">
+        <!-- 4. GRAFIK S/N -->
+        <div class="col-lg-12 mb-4">
             <div class="card border-0 shadow-sm h-100 border-top border-warning border-3">
                 <div class="card-header bg-white p-3">
-                    <h5 class="mb-0 fw-bold">4. Grafik S/N Ratio Utama</h5>
+                    <h5 class="mb-0 fw-bold">4. Main Effects Plot for S/N Ratios (MATLAB Style)</h5>
                 </div>
                 <div class="card-body">
-                    <canvas id="taguchiChart"></canvas>
+                    <div class="row text-center">
+                        <div class="col-md-4">
+                            <h6 class="fw-bold text-secondary mb-3">Faktor A (Ukuran Jaring)</h6>
+                            <div style="height: 300px;">
+                                <canvas id="chartA"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="fw-bold text-secondary mb-3">Faktor B (MD Jaring)</h6>
+                            <div style="height: 300px;">
+                                <canvas id="chartB"></canvas>
+                            </div>
+                        </div>
+                        <div class="col-md-4">
+                            <h6 class="fw-bold text-secondary mb-3">Faktor C (RPM Mesin)</h6>
+                            <div style="height: 300px;">
+                                <canvas id="chartC"></canvas>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
@@ -333,68 +439,123 @@
 @push('scripts')
 <script>
 document.addEventListener("DOMContentLoaded", function() {
-    const ctx = document.getElementById('taguchiChart').getContext('2d');
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: ['Level 1', 'Level 2', 'Level 3'],
-            datasets: [
-                {
-                    label: 'Faktor A',
-                    data: [{{ $responseTable['A'][1] }}, {{ $responseTable['A'][2] }}, {{ $responseTable['A'][3] }}],
-                    borderColor: '#0d6efd',
-                    backgroundColor: '#0d6efd',
-                    tension: 0.1,
-                    fill: false,
-                    pointRadius: 6,
-                    pointHoverRadius: 8
-                },
-                {
-                    label: 'Faktor B',
-                    data: [{{ $responseTable['B'][1] }}, {{ $responseTable['B'][2] }}, {{ $responseTable['B'][3] }}],
-                    borderColor: '#198754',
-                    backgroundColor: '#198754',
-                    tension: 0.1,
-                    fill: false,
-                    pointRadius: 6,
-                    pointHoverRadius: 8
-                },
-                {
-                    label: 'Faktor C',
-                    data: [{{ $responseTable['C'][1] }}, {{ $responseTable['C'][2] }}, {{ $responseTable['C'][3] }}],
-                    borderColor: '#dc3545',
-                    backgroundColor: '#dc3545',
-                    tension: 0.1,
-                    fill: false,
-                    pointRadius: 6,
-                    pointHoverRadius: 8
-                }
-            ]
-        },
-        options: {
-            responsive: true,
-            maintainAspectRatio: false,
-            scales: {
-                y: {
-                    title: {
-                        display: true,
-                        text: 'Mean of S/N Ratio (dB)'
-                    }
-                }
-            },
-            plugins: {
-                tooltip: {
-                    callbacks: {
-                        label: function(context) {
-                            return context.dataset.label + ': ' + context.parsed.y.toFixed(3) + ' dB';
-                        }
+    // Data values for each factor
+    const dataA = [{{ $responseTable['A'][1] }}, {{ $responseTable['A'][2] }}, {{ $responseTable['A'][3] }}];
+    const dataB = [{{ $responseTable['B'][1] }}, {{ $responseTable['B'][2] }}, {{ $responseTable['B'][3] }}];
+    const dataC = [{{ $responseTable['C'][1] }}, {{ $responseTable['C'][2] }}, {{ $responseTable['C'][3] }}];
+    
+    // Labels representing level values
+    const labelsA = ['{{ $levels["A"][0] }}', '{{ $levels["A"][1] }}', '{{ $levels["A"][2] }}'];
+    const labelsB = ['{{ $levels["B"][0] }}', '{{ $levels["B"][1] }}', '{{ $levels["B"][2] }}'];
+    const labelsC = ['{{ $levels["C"][0] }}', '{{ $levels["C"][1] }}', '{{ $levels["C"][2] }}'];
+    
+    const grandMean = {{ $avg_total_sn ?? 0 }};
+    
+    // Calculate global min and max for uniform Y-axis across subplots
+    const allData = [...dataA, ...dataB, ...dataC, grandMean];
+    // Adding slight padding
+    const yMin = Math.min(...allData) - 0.5; 
+    const yMax = Math.max(...allData) + 0.5;
+    
+    const commonOptions = {
+        responsive: true,
+        maintainAspectRatio: false,
+        plugins: {
+            legend: { display: false },
+            tooltip: {
+                callbacks: {
+                    label: function(context) {
+                        return context.raw.toFixed(3) + ' dB';
                     }
                 }
             }
+        },
+        scales: {
+            x: {
+                grid: { display: true, color: '#e2e8f0' } // Light gray grid
+            },
+            y: {
+                min: yMin,
+                max: yMax,
+                grid: { display: true, color: '#e2e8f0' },
+                title: { display: true, text: 'Mean of S/N Ratio' }
+            }
         }
-    });
+    };
+    
+    function createChart(ctxId, data, color, labels) {
+        return new Chart(document.getElementById(ctxId).getContext('2d'), {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [
+                    {
+                        // Main Line Data
+                        data: data,
+                        borderColor: color,
+                        backgroundColor: color,
+                        tension: 0, // 0 tension makes straight MATLAB-like lines
+                        fill: false,
+                        pointRadius: 6,
+                        pointHoverRadius: 8,
+                        pointStyle: 'circle'
+                    },
+                    {
+                        // Grand Mean Line (simulated as another dataset)
+                        data: [grandMean, grandMean, grandMean],
+                        borderColor: '#94a3b8',
+                        borderDash: [5, 5],
+                        borderWidth: 2,
+                        pointRadius: 0,
+                        pointHoverRadius: 0,
+                        tension: 0,
+                        fill: false
+                    }
+                ]
+            },
+            options: commonOptions
+        });
+    }
+
+    createChart('chartA', dataA, '#0d6efd', labelsA);
+    createChart('chartB', dataB, '#198754', labelsB);
+    createChart('chartC', dataC, '#dc3545', labelsC);
 });
 </script>
+
+<script>
+function exportToExcel() {
+    let html = "<html xmlns:o='urn:schemas-microsoft-com:office:office' xmlns:x='urn:schemas-microsoft-com:office:excel' xmlns='http://www.w3.org/TR/REC-html40'><head><meta charset='utf-8'></head><body>";
+    
+    html += "<h2>Hasil Analisis Optimasi Taguchi L9</h2>";
+    html += "<p>Data Periode: {{ $periodeText ?? 'Terpilih' }}</p><br>";
+
+    // Get all tables in print area
+    const tables = document.querySelectorAll('#print-area table');
+    const tableTitles = [
+        "1. Penentuan Faktor dan Level",
+        "2. Orthogonal Array L9 & Respon (Total Defect)",
+        "3. Response Table for Signal to Noise Ratios (Smaller is better)"
+    ];
+
+    tables.forEach((table, index) => {
+        html += "<h3>" + (tableTitles[index] || "Tabel " + (index+1)) + "</h3>";
+        html += table.outerHTML;
+        html += "<br><br>";
+    });
+    html += "</body></html>";
+    
+    let blob = new Blob([html], { type: 'application/vnd.ms-excel' });
+    let url = URL.createObjectURL(blob);
+    let a = document.createElement('a');
+    a.href = url;
+    a.download = 'Analisis_Taguchi_L9.xls';
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+}
+</script>
+</div>
 @endpush
 @endif
 @endsection

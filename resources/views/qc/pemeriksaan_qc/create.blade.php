@@ -112,11 +112,11 @@
 
                     <div class="row g-3 mb-4">
                         <div class="col-md-3 col-sm-6">
-                            <label class="form-label fw-semibold">Rusak Ringan (RR)</label>
+                            <label class="form-label fw-semibold">RR</label>
                             <input type="number" name="rr" id="rr" class="form-control defect-input" value="{{ old('rr', 0) }}" required min="0">
                         </div>
                         <div class="col-md-3 col-sm-6">
-                            <label class="form-label fw-semibold">Parah Ringan (PR)</label>
+                            <label class="form-label fw-semibold">PR</label>
                             <input type="number" name="pr" id="pr" class="form-control defect-input" value="{{ old('pr', 0) }}" required min="0">
                         </div>
                         <div class="col-md-3 col-sm-6">
@@ -128,7 +128,7 @@
                             <input type="number" name="super" id="super" class="form-control defect-input" value="{{ old('super', 0) }}" required min="0">
                         </div>
                         <div class="col-md-4 col-sm-6">
-                            <label class="form-label fw-semibold">Rusak Jalur (RJ)</label>
+                            <label class="form-label fw-semibold">RJ</label>
                             <input type="number" name="rj" id="rj" class="form-control defect-input" value="{{ old('rj', 0) }}" required min="0">
                         </div>
                         <div class="col-md-4 col-sm-6">

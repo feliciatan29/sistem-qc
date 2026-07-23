@@ -188,7 +188,7 @@
                                         </span>
                                     @else
                                         <span class="badge bg-danger">
-                                            <i class="bi bi-x-circle-fill me-1"></i>Nonaktif
+                                            <i class="bi bi-x-circle-fill me-1"></i>Data Selesai
                                         </span>
                                     @endif
                                 </td>
@@ -227,12 +227,6 @@
                 </table>
             </div>
 
-            {{-- Pagination --}}
-            @if ($produksi->hasPages())
-                <div class="d-flex justify-content-end px-3 py-3 border-top">
-                    {{ $produksi->links() }}
-                </div>
-            @endif
 
         </section>
 

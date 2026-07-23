@@ -55,85 +55,120 @@ class TaguchiController extends Controller
                 $periodeText = "Tahun $tahun";
             }
 
-            // 1. Tentukan Defect Dominan (Kategori dengan jumlah defect terbesar pada filter tsb)
-            $qcSums = (clone $qcQuery)
-                ->selectRaw('SUM(rr) as rr, SUM(pr) as pr, SUM(rps) as rps, SUM(`super`) as `super`, SUM(rj) as rj, SUM(berbulu) as berbulu, SUM(rusak_blok) as rusak_blok')
-                ->first();
+            // 1. Ambil Data Pengaturan Mesin (L9) - Eksperimen
+            $allPengaturan = (clone $pengaturanQuery)
+                ->orderBy('id', 'asc')
+                ->get();
+                
+            $l9_limit = min(9, $allPengaturan->count());
+            $pengaturan = $allPengaturan->take($l9_limit);
 
-            if (!$qcSums || ($qcSums->rr == null && $qcSums->rj == null)) {
+            if ($l9_limit == 0) {
+                return view('qc.taguchi.index', compact('availableYears'))->with('error_taguchi', "Tidak ada data pengaturan mesin untuk periode $periodeText dan jenis jaring tersebut.");
+            }
+
+            // 2. Ambil Data Pemeriksaan QC
+            $allQc = (clone $qcQuery)
+                ->orderBy('id', 'asc')
+                ->get();
+
+            if ($allQc->count() == 0) {
                 return view('qc.taguchi.index', compact('availableYears'))->with('error_taguchi', "Tidak ada data Pemeriksaan QC untuk periode $periodeText dan jenis jaring tersebut.");
             }
 
-            // Cari nilai maximum dari semua kolom defect
-            $defectCounts = [
-                'rr' => (int)$qcSums->rr,
-                'pr' => (int)$qcSums->pr,
-                'rps' => (int)$qcSums->rps,
-                'super' => (int)$qcSums->super,
-                'rj' => (int)$qcSums->rj,
-                'berbulu' => (int)$qcSums->berbulu,
-                'rusak_blok' => (int)$qcSums->rusak_blok,
-            ];
+            // Tentukan rasio n (Trial per eksperimen)
+            $n_qc_per_exp = max(1, floor($allQc->count() / max(1, $allPengaturan->count())));
+            $qc = $allQc->take($l9_limit * $n_qc_per_exp);
 
-            arsort($defectCounts);
-            $kategori = array_key_first($defectCounts); // Kolom defect terbanyak
-            $kategoriName = $availableKategori[$kategori] ?? strtoupper($kategori);
-            $maxDefect = $defectCounts[$kategori];
-
-            if ($maxDefect == 0) {
-                return view('qc.taguchi.index', compact('availableYears'))->with('error_taguchi', "Tidak ada defect yang ditemukan pada periode $periodeText dan jenis jaring tersebut (semua 0).");
+            // Validasi Kecukupan Data Taguchi L9 (Hanya Info jika < 9, bukan Error)
+            $info_taguchi = null;
+            if ($l9_limit < 9) {
+                $info_taguchi = "Data belum mencapai 9 eksperimen (baru ada $l9_limit pengaturan mesin). Sistem tetap melakukan perhitungan dengan data yang tersedia.";
             }
 
-            // 2. Ambil 9 Data Pengaturan Mesin (L9)
-            $pengaturan = (clone $pengaturanQuery)
-                ->orderBy('id', 'asc')
-                ->limit(9)
-                ->get();
-
-            // 3. Ambil 18 Data Pemeriksaan QC (Trial 1 & Trial 2 untuk 9 Eksperimen)
-            $qc = (clone $qcQuery)
-                ->orderBy('id', 'asc')
-                ->limit(18)
-                ->get();
-
-            // Validasi Kecukupan Data Taguchi L9
-            if ($pengaturan->count() < 9 || $qc->count() < 18) {
-                return view('qc.taguchi.index', compact('availableYears'))->with('error_taguchi', "Data belum mencukupi untuk dilakukan optimasi Taguchi L9. Dibutuhkan minimal 9 data pengaturan mesin dan 18 data pemeriksaan QC untuk filter $periodeText tersebut.");
-            }
-
-            // Ekstrak Level Faktor
-            $faktorA = $pengaturan->pluck('ukuran_jaring')->unique()->values()->toArray();
-            $faktorB = $pengaturan->pluck('MD_jaring')->unique()->values()->toArray();
-            $faktorC = $pengaturan->pluck('RPM_jaring')->unique()->values()->toArray();
-
-            // Pastikan kita memiliki 3 level, jika kurang kita ambil apa adanya dan isi default
+            // Ekstrak Level Faktor berdasarkan jenis jaring (Perbaikan: tidak langsung keluar dari database)
             $levels = [
-                'A' => array_pad($faktorA, 3, '-'),
-                'B' => array_pad($faktorB, 3, '-'),
-                'C' => array_pad($faktorC, 3, '-')
+                'A' => ['-', '-', '-'],
+                'B' => ['-', '-', '-'],
+                'C' => ['-', '-', '-']
             ];
+
+            if (stripos($jenis, 'Mono') !== false) {
+                $levels['A'] = ['0.15', '0.20', '0.25'];
+                $levels['B'] = ['70', '100', '200'];
+                $levels['C'] = ['18', '17', '17']; // Level 3 di 17 sesuai instruksi
+            } elseif (stripos($jenis, 'Multi') !== false) {
+                // Placeholder untuk Multifilament, bisa disesuaikan nanti
+                $levels['A'] = ['210 D/2', '210 D/3', '210 D/4'];
+                $levels['B'] = ['50', '60', '70'];
+                $levels['C'] = ['15', '16', '17'];
+            } else {
+                // Fallback jika ada kategori jaring lain
+                $faktorA = $pengaturan->pluck('ukuran_jaring')->unique()->values()->toArray();
+                $faktorB = $pengaturan->pluck('MD_jaring')->unique()->values()->toArray();
+                $faktorC = $pengaturan->pluck('RPM_jaring')->unique()->values()->toArray();
+
+                $levels['A'] = array_pad($faktorA, 3, '-');
+                $levels['B'] = array_pad($faktorB, 3, '-');
+                $levels['C'] = array_pad($faktorC, 3, '-');
+            }
 
             // Bangun Matriks L9
             $l9_matrix = [];
             $total_sn = 0;
             
-            for ($i = 0; $i < 9; $i++) {
+            for ($i = 0; $i < $l9_limit; $i++) {
                 $p = $pengaturan[$i];
-                $trial1 = (float) $qc[$i * 2]->{$kategori};
-                $trial2 = (float) $qc[($i * 2) + 1]->{$kategori};
                 
-                // Mencegah log(0)
-                $t1 = $trial1 == 0 ? 0.0001 : $trial1;
-                $t2 = $trial2 == 0 ? 0.0001 : $trial2;
+                // Ambil nilai Total Defect (Y) untuk eksperimen ini
+                $qc_items = [];
+                for($j = 0; $j < $n_qc_per_exp; $j++) {
+                    $qc_idx = ($i * $n_qc_per_exp) + $j;
+                    if(isset($qc[$qc_idx])) {
+                        $qc_items[] = (float) $qc[$qc_idx]->total_defect;
+                    }
+                }
                 
-                // Rumus S/N Ratio Smaller is Better: -10 * log10((T1^2 + T2^2)/2)
-                $sn_ratio = -10 * log10( (($t1 * $t1) + ($t2 * $t2)) / 2 );
+                $n = count($qc_items);
+                $sum_y2 = 0;
+                $sum_y = 0;
+                
+                if ($n == 0) {
+                    $sum_y2 = 0.0001;
+                    $n = 1;
+                } else {
+                    foreach($qc_items as $y) {
+                        $val = $y == 0 ? 0.0001 : $y; // Mencegah log(0)
+                        $sum_y2 += ($val * $val);
+                        $sum_y += $y;
+                    }
+                }
+                
+                // Rumus S/N Ratio Smaller is Better: -10 * log10( sum(Y^2) / n )
+                $sn_ratio = -10 * log10($sum_y2 / $n);
                 $total_sn += $sn_ratio;
+                $mean_y = $sum_y / $n;
 
-                // Tentukan level (1, 2, atau 3) berdasarkan index unik
-                $lvlA = array_search($p->ukuran_jaring, $levels['A']) + 1;
-                $lvlB = array_search($p->MD_jaring, $levels['B']) + 1;
-                $lvlC = array_search($p->RPM_jaring, $levels['C']) + 1;
+                // Tentukan level berdasarkan Standar Orthogonal Array L9 agar perhitungan tidak 0 di level tertentu
+                $standard_l9 = [
+                    [1, 1, 1], // Exp 1
+                    [1, 2, 2], // Exp 2
+                    [1, 3, 3], // Exp 3
+                    [2, 1, 2], // Exp 4
+                    [2, 2, 3], // Exp 5
+                    [2, 3, 1], // Exp 6
+                    [3, 1, 3], // Exp 7
+                    [3, 2, 1], // Exp 8
+                    [3, 3, 2]  // Exp 9
+                ];
+
+                if (isset($standard_l9[$i])) {
+                    $lvlA = $standard_l9[$i][0];
+                    $lvlB = $standard_l9[$i][1];
+                    $lvlC = $standard_l9[$i][2];
+                } else {
+                    $lvlA = 1; $lvlB = 1; $lvlC = 1;
+                }
 
                 $l9_matrix[] = [
                     'exp' => $i + 1,
@@ -143,14 +178,19 @@ class TaguchiController extends Controller
                     'A_lvl' => $lvlA,
                     'B_lvl' => $lvlB,
                     'C_lvl' => $lvlC,
-                    'trial1' => $trial1,
-                    'trial2' => $trial2,
+                    'trials' => $qc_items,
+                    'mean_y' => $mean_y,
                     'sn' => $sn_ratio
                 ];
             }
 
-            // --- Response Table S/N Ratio ---
+            // --- Response Table S/N Ratio & Mean ---
             $responseTable = [
+                'A' => [1 => 0, 2 => 0, 3 => 0],
+                'B' => [1 => 0, 2 => 0, 3 => 0],
+                'C' => [1 => 0, 2 => 0, 3 => 0]
+            ];
+            $responseTableMean = [
                 'A' => [1 => 0, 2 => 0, 3 => 0],
                 'B' => [1 => 0, 2 => 0, 3 => 0],
                 'C' => [1 => 0, 2 => 0, 3 => 0]
@@ -162,23 +202,40 @@ class TaguchiController extends Controller
             ];
 
             foreach ($l9_matrix as $row) {
-                if(isset($responseTable['A'][$row['A_lvl']])) { $responseTable['A'][$row['A_lvl']] += $row['sn']; $counts['A'][$row['A_lvl']]++; }
-                if(isset($responseTable['B'][$row['B_lvl']])) { $responseTable['B'][$row['B_lvl']] += $row['sn']; $counts['B'][$row['B_lvl']]++; }
-                if(isset($responseTable['C'][$row['C_lvl']])) { $responseTable['C'][$row['C_lvl']] += $row['sn']; $counts['C'][$row['C_lvl']]++; }
-            }
-
-            // Hitung Rata-rata S/N per level
-            foreach (['A', 'B', 'C'] as $f) {
-                for ($l = 1; $l <= 3; $l++) {
-                    $responseTable[$f][$l] = $counts[$f][$l] > 0 ? $responseTable[$f][$l] / $counts[$f][$l] : 0;
+                if(isset($responseTable['A'][$row['A_lvl']])) { 
+                    $responseTable['A'][$row['A_lvl']] += $row['sn']; 
+                    $responseTableMean['A'][$row['A_lvl']] += $row['mean_y'];
+                    $counts['A'][$row['A_lvl']]++; 
+                }
+                if(isset($responseTable['B'][$row['B_lvl']])) { 
+                    $responseTable['B'][$row['B_lvl']] += $row['sn']; 
+                    $responseTableMean['B'][$row['B_lvl']] += $row['mean_y'];
+                    $counts['B'][$row['B_lvl']]++; 
+                }
+                if(isset($responseTable['C'][$row['C_lvl']])) { 
+                    $responseTable['C'][$row['C_lvl']] += $row['sn']; 
+                    $responseTableMean['C'][$row['C_lvl']] += $row['mean_y'];
+                    $counts['C'][$row['C_lvl']]++; 
                 }
             }
 
-            // Hitung Delta dan Rank
+            // Hitung Rata-rata S/N dan Mean per level
+            foreach (['A', 'B', 'C'] as $f) {
+                for ($l = 1; $l <= 3; $l++) {
+                    $responseTable[$f][$l] = $counts[$f][$l] > 0 ? $responseTable[$f][$l] / $counts[$f][$l] : 0;
+                    $responseTableMean[$f][$l] = $counts[$f][$l] > 0 ? $responseTableMean[$f][$l] / $counts[$f][$l] : 0;
+                }
+            }
+
+            // Hitung Delta dan Rank (S/N Ratio)
             $deltas = [];
             foreach (['A', 'B', 'C'] as $f) {
-                $max = max($responseTable[$f]);
-                $min = min($responseTable[$f]);
+                $valid_sn = [];
+                for($l = 1; $l <= 3; $l++) {
+                    if($counts[$f][$l] > 0) $valid_sn[] = $responseTable[$f][$l];
+                }
+                $max = count($valid_sn) > 0 ? max($valid_sn) : 0;
+                $min = count($valid_sn) > 0 ? min($valid_sn) : 0;
                 $deltas[$f] = $max - $min;
             }
             
@@ -189,36 +246,54 @@ class TaguchiController extends Controller
                 $ranks[$f] = $rank++;
             }
 
-            // Setting Optimum
-            $optimum = [
-                'A' => array_keys($responseTable['A'], max($responseTable['A']))[0],
-                'B' => array_keys($responseTable['B'], max($responseTable['B']))[0],
-                'C' => array_keys($responseTable['C'], max($responseTable['C']))[0]
-            ];
+            // Setting Optimum (Max S/N Ratio)
+            $optimum = [];
+            foreach (['A', 'B', 'C'] as $f) {
+                $max_sn = -999999;
+                $opt_lvl = 1;
+                for($l = 1; $l <= 3; $l++) {
+                    if($counts[$f][$l] > 0 && $responseTable[$f][$l] > $max_sn) {
+                        $max_sn = $responseTable[$f][$l];
+                        $opt_lvl = $l;
+                    }
+                }
+                $optimum[$f] = $opt_lvl;
+            }
 
             // --- ANOVA S/N Ratio ---
-            $avg_total_sn = $total_sn / 9;
+            $avg_total_sn = $l9_limit > 0 ? $total_sn / $l9_limit : 0;
             $SST = 0;
             foreach ($l9_matrix as $row) {
                 $SST += pow($row['sn'] - $avg_total_sn, 2);
             }
 
             $SSA = 0; $SSB = 0; $SSC = 0;
+            $DFA = 0; $DFB = 0; $DFC = 0;
+
             for ($l = 1; $l <= 3; $l++) {
-                $SSA += 3 * pow($responseTable['A'][$l] - $avg_total_sn, 2);
-                $SSB += 3 * pow($responseTable['B'][$l] - $avg_total_sn, 2);
-                $SSC += 3 * pow($responseTable['C'][$l] - $avg_total_sn, 2);
+                if($counts['A'][$l] > 0) $DFA++;
+                if($counts['B'][$l] > 0) $DFB++;
+                if($counts['C'][$l] > 0) $DFC++;
+
+                $SSA += $counts['A'][$l] * pow($responseTable['A'][$l] - $avg_total_sn, 2);
+                $SSB += $counts['B'][$l] * pow($responseTable['B'][$l] - $avg_total_sn, 2);
+                $SSC += $counts['C'][$l] * pow($responseTable['C'][$l] - $avg_total_sn, 2);
             }
+
+            $DFA = max(0, $DFA - 1);
+            $DFB = max(0, $DFB - 1);
+            $DFC = max(0, $DFC - 1);
+            
+            $DFT = max(0, $l9_limit - 1);
+            $DFE = max(0, $DFT - ($DFA + $DFB + $DFC));
 
             $SSE = $SST - ($SSA + $SSB + $SSC);
             // Mencegah SS negatif akibat presisi floating point
             $SSE = $SSE < 0 ? 0 : $SSE; 
-
-            $DFA = 2; $DFB = 2; $DFC = 2; $DFE = 2; $DFT = 8;
             
-            $MSA = $SSA / $DFA;
-            $MSB = $SSB / $DFB;
-            $MSC = $SSC / $DFC;
+            $MSA = $DFA > 0 ? $SSA / $DFA : 0;
+            $MSB = $DFB > 0 ? $SSB / $DFB : 0;
+            $MSC = $DFC > 0 ? $SSC / $DFC : 0;
             $MSE = $DFE > 0 ? $SSE / $DFE : 0;
 
             $FA = $MSE > 0 ? $MSA / $MSE : 0;
@@ -239,8 +314,8 @@ class TaguchiController extends Controller
             ];
 
             return view('qc.taguchi.index', compact(
-                'availableYears', 'availableKategori', 'levels', 'l9_matrix', 
-                'responseTable', 'deltas', 'ranks', 'optimum', 'anova', 'kategoriName', 'kategori', 'periodeText'
+                'availableYears', 'levels', 'l9_matrix', 'n_qc_per_exp',
+                'responseTable', 'responseTableMean', 'deltas', 'ranks', 'optimum', 'anova', 'periodeText', 'info_taguchi', 'avg_total_sn'
             ));
         }
 

@@ -32,7 +32,7 @@ class PengaturanController extends Controller
             'ukuran_jaring'=> 'required|string|max:255',
             'MD_jaring'    => 'required|numeric|min:0',
             'RPM_jaring'   => 'required|numeric|min:0',
-            'status'       => 'required|in:Aktif,Nonaktif',
+            'status'       => 'required|in:Aktif,Data Selesai',
         ]);
 
         PengaturanMesin::create($validated);
@@ -64,7 +64,7 @@ class PengaturanController extends Controller
             'ukuran_jaring'=> 'required|string|max:255',
             'MD_jaring'    => 'required|numeric|min:0',
             'RPM_jaring'   => 'required|numeric|min:0',
-            'status'       => 'required|in:Aktif,Nonaktif',
+            'status'       => 'required|in:Aktif,Data Selesai',
         ]);
 
         $pengaturan_mesin->update($validated);

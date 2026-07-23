@@ -38,9 +38,7 @@ Route::post('/logout', [AuthController::class, 'logout'])->name('logout')->middl
 |--------------------------------------------------------------------------
 */
 Route::middleware(['auth'])->group(function () {
-    Route::get('/produksi/dashboard', function () {
-        return view('produksi.beranda');
-    })->name('produksi.dashboard');
+    Route::get('/produksi/dashboard', [App\Http\Controllers\ProduksiController::class, 'dashboard'])->name('produksi.dashboard');
 
     Route::resource('produksi/data-produksi', ProduksiController::class)->names('produksi');
     
@@ -71,5 +69,5 @@ Route::middleware(['auth'])->group(function () {
     Route::get('qc/taguchi', [App\Http\Controllers\TaguchiController::class, 'index'])->name('qc.taguchi.index');
 
     // Modul Estimasi Kerugian (QLF)
-    Route::get('qc/estimasi-kerugian', [App\Http\Controllers\QlfController::class, 'index'])->name('qc.qlf.index');
+    Route::match(['get', 'post'], 'qc/estimasi-kerugian', [App\Http\Controllers\QlfController::class, 'index'])->name('qc.qlf.index');
 });
