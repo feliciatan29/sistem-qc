@@ -78,40 +78,28 @@
 </div>
 
 <!-- Filter Card -->
-<div class="card border-0 shadow-sm mb-4">
-    <div class="card-body">
-        <form action="{{ route('qc.taguchi.index') }}" method="GET" class="row g-3 align-items-end">
-            <div class="col-md-3">
-                <label for="jenis_jaring" class="form-label fw-bold">Jenis Jaring</label>
-                <select name="jenis_jaring" id="jenis_jaring" class="form-select" required>
-                    <option value="">-- Pilih Jenis --</option>
-                    <option value="Mono" {{ request('jenis_jaring') == 'Mono' ? 'selected' : '' }}>Monofilament</option>
-                    <option value="Multi" {{ request('jenis_jaring') == 'Multi' ? 'selected' : '' }}>Multifilament</option>
-                </select>
+<div class="card border-0 shadow-sm mb-4 bg-white" style="border-radius: 12px;">
+    <div class="card-body p-4 text-center">
+        <h5 class="fw-bold mb-4 text-secondary"><i class="bi bi-funnel-fill me-2 text-primary"></i>Pilih Jenis Jaring untuk Analisis Taguchi</h5>
+        <form action="{{ route('qc.taguchi.index') }}" method="GET" id="filterForm">
+            <div class="btn-group shadow-sm" role="group" aria-label="Pilih Jenis Jaring" style="border-radius: 8px;">
+                <input type="radio" class="btn-check" name="jenis_jaring" id="btnradio1" autocomplete="off" value="Mono" {{ request('jenis_jaring') == 'Mono' ? 'checked' : '' }} onchange="this.form.submit()">
+                <label class="btn btn-outline-primary px-5 py-2 fw-semibold" for="btnradio1">
+                    <i class="bi bi-record-circle me-2"></i> Monofilament
+                </label>
+
+                <input type="radio" class="btn-check" name="jenis_jaring" id="btnradio2" autocomplete="off" value="Multi" {{ request('jenis_jaring') == 'Multi' ? 'checked' : '' }} onchange="this.form.submit()">
+                <label class="btn btn-outline-primary px-5 py-2 fw-semibold" for="btnradio2">
+                    <i class="bi bi-layers me-2"></i> Multifilament
+                </label>
             </div>
-            <div class="col-md-3">
-                <label for="bulan" class="form-label fw-bold">Bulan</label>
-                <select name="bulan" id="bulan" class="form-select">
-                    <option value="">-- Semua Bulan --</option>
-                    @for($i=1; $i<=12; $i++)
-                        <option value="{{ $i }}" {{ request('bulan') == $i ? 'selected' : '' }}>{{ date('F', mktime(0, 0, 0, $i, 10)) }}</option>
-                    @endfor
-                </select>
-            </div>
-            <div class="col-md-3">
-                <label for="tahun" class="form-label fw-bold">Tahun</label>
-                <select name="tahun" id="tahun" class="form-select">
-                    <option value="">-- Semua Tahun --</option>
-                    @foreach($availableYears as $y)
-                        <option value="{{ $y }}" {{ request('tahun') == $y ? 'selected' : '' }}>{{ $y }}</option>
-                    @endforeach
-                </select>
-            </div>
-            <div class="col-md-3">
-                <button type="submit" class="btn btn-primary w-100">
-                    <i class="bi bi-gear-fill me-2"></i> Proses Optimasi
-                </button>
-            </div>
+            <noscript>
+                <div class="mt-3">
+                    <button type="submit" class="btn btn-primary">
+                        <i class="bi bi-gear-fill me-2"></i> Proses Optimasi
+                    </button>
+                </div>
+            </noscript>
         </form>
     </div>
 </div>
@@ -138,7 +126,9 @@
 
     <div class="alert alert-info border-0 shadow-sm mb-4">
         <h5 class="alert-heading fw-bold"><i class="bi bi-info-circle-fill me-2"></i>Informasi Respon Taguchi</h5>
-        Sistem secara otomatis telah memproses Data Pemeriksaan QC untuk periode <strong>{{ $periodeText ?? 'terpilih' }}</strong>. Seluruh analisis Taguchi L9 di bawah ini menggunakan data <strong>Total Defect</strong> sebagai target optimasi (Smaller is Better).
+        <p>Sistem secara otomatis telah memproses Data Pemeriksaan QC untuk <strong>keseluruhan periode</strong>. Seluruh analisis Taguchi L9 di bawah ini menggunakan data <strong>Total Defect</strong> sebagai target optimasi (Smaller is Better).</p>
+        <hr>
+        <p class="mb-0"><strong>Keterangan:</strong> Sumber data Optimasi Taguchi berasal dari data defect yang telah tersimpan pada sistem. Analisis dilakukan berdasarkan seluruh data defect sesuai dengan jenis jaring yang dipilih (Monofilament atau Multifilament), sehingga hasil yang ditampilkan merupakan hasil optimasi dari keseluruhan data yang tersedia dan tidak dibatasi oleh periode bulan maupun tahun.</p>
     </div>
 
     <div class="text-end mb-3">

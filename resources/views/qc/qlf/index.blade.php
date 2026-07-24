@@ -91,12 +91,12 @@
         <div class="panel-body p-3">
             <div class="row g-3">
                 <div class="col-md-3">
-                    <label for="biaya_kerugian" class="form-label text-muted small">Biaya Kerugian (A) Rp</label>
+                    <label for="biaya_kerugian" class="form-label text-muted small">Biaya Kerugian (Rp)</label>
                     <input type="number" class="form-control" id="biaya_kerugian" name="biaya_kerugian" value="{{ $A }}" required>
                 </div>
                 
                 <div class="col-md-3">
-                    <label for="batas_toleransi" class="form-label text-muted small">Batas Toleransi (D)</label>
+                    <label for="batas_toleransi" class="form-label text-muted small">Batas Toleransi</label>
                     <input type="number" class="form-control" id="batas_toleransi" name="batas_toleransi" value="{{ $D }}" required step="any">
                 </div>
 
@@ -107,7 +107,7 @@
             </div>
 
             <div class="mt-3 small text-muted">
-                <em>Konstanta Quality Loss Function (k) = {{ number_format($k, 4, ',', '.') }}</em>
+                <em>Konstanta Quality Loss Function = {{ number_format($k, 4, ',', '.') }}</em>
             </div>
         </div>
       </div>
@@ -126,8 +126,8 @@
                     <thead class="table-light">
                         <tr>
                             <th class="text-start">Jenis Jaring</th>
-                            <th>Target (T)</th>
-                            <th>Hasil Aktual (y)</th>
+                            <th>Target</th>
+                            <th>Hasil Aktual</th>
                             <th>Produksi / Hari</th>
                             <th style="width: 50px;">Aksi</th>
                         </tr>
@@ -218,8 +218,8 @@
                 <thead class="table-light">
                     <tr>
                         <th class="text-start">Jenis Jaring</th>
-                        <th>Target (T)</th>
-                        <th>Hasil Aktual (y)</th>
+                        <th>Target</th>
+                        <th>Hasil Aktual</th>
                         <th>Loss per Unit (Rp)</th>
                         <th>Produksi/Hari</th>
                         <th>Loss per Hari (Rp)</th>
@@ -356,45 +356,56 @@ document.addEventListener('DOMContentLoaded', function () {
     const chartLineData = {!! json_encode($chartLineData) !!};
     const chartDoughnutData = {!! json_encode($chartDoughnutData) !!};
 
-    const commonOptions = {
-        responsive: true,
-        maintainAspectRatio: false,
-        plugins: {
-            legend: {
-                display: false
-            },
-            tooltip: {
-                callbacks: {
-                    label: function(context) {
-                        let label = context.dataset.label || '';
-                        if (label) {
-                            label += ': Rp';
-                        }
-                        if (context.parsed.y !== null) {
-                            label += new Intl.NumberFormat('id-ID').format(context.parsed.y);
-                        }
-                        return label;
-                    }
-                }
-            }
-        }
-    };
+    const chartColors = [
+        'rgba(13, 110, 253, 0.8)',
+        'rgba(255, 193, 7, 0.8)',
+        'rgba(220, 53, 69, 0.8)',
+        'rgba(25, 135, 84, 0.8)',
+        'rgba(111, 66, 193, 0.8)',
+        'rgba(253, 126, 20, 0.8)',
+        'rgba(32, 201, 151, 0.8)'
+    ];
+
+    const barDatasets = chartBarLabels.map((label, index) => {
+        return {
+            label: label,
+            data: [chartBarData[index]],
+            backgroundColor: chartColors[index % chartColors.length],
+            borderRadius: 4
+        };
+    });
 
     // 1. Grafik Batang (Bar Chart)
     const ctxBar = document.getElementById('chartBarLoss').getContext('2d');
     new Chart(ctxBar, {
         type: 'bar',
         data: {
-            labels: chartBarLabels,
-            datasets: [{
-                label: 'Total Kerugian',
-                data: chartBarData,
-                backgroundColor: 'rgba(13, 110, 253, 0.8)',
-                borderRadius: 4
-            }]
+            labels: ['Total Kerugian per Jaring'],
+            datasets: barDatasets
         },
         options: {
-            ...commonOptions,
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: true,
+                    position: 'bottom'
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.dataset.label || '';
+                            if (label) {
+                                label += ': Rp';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += new Intl.NumberFormat('id-ID').format(context.parsed.y);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
             scales: {
                 y: { beginAtZero: true }
             }
@@ -419,7 +430,27 @@ document.addEventListener('DOMContentLoaded', function () {
             }]
         },
         options: {
-            ...commonOptions,
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    display: false
+                },
+                tooltip: {
+                    callbacks: {
+                        label: function(context) {
+                            let label = context.label || '';
+                            if (label) {
+                                label += ' - Kerugian: Rp';
+                            }
+                            if (context.parsed.y !== null) {
+                                label += new Intl.NumberFormat('id-ID').format(context.parsed.y);
+                            }
+                            return label;
+                        }
+                    }
+                }
+            },
             scales: {
                 y: { beginAtZero: true }
             }
